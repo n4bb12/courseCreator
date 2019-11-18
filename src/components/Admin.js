@@ -1,11 +1,14 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-undef */
 /* eslint-disable no-debugger */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-console */
 /* eslint-disable no-restricted-globals */
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Col, ListGroup, Row, Modal } from 'react-bootstrap';
+import Axios from 'axios';
 import axiosInstance from '../api';
-import courseCommonModal from './commons/modal';
+// import courseCommonModal from './commons/modal';
 
 const Admin = () => {
     const courseDataArr = [{
@@ -52,7 +55,7 @@ const Admin = () => {
     const [chapterArr, setChapterArr] = useState([]);
     const [modalShow, setModalShow] = useState(false);
     const [selectedChapter, setChapter] = useState({});
-    
+    const [fileArr, setFileArr] = useState([]);
 
 
     const handleClose = () => setModalShow(false);
@@ -154,13 +157,59 @@ const Admin = () => {
         });
     };
 
+    const handleFileUpload = (event) => {
+        debugger;
+        const { files } = event.nativeEvent.target;
+        if (files[0].size >= 10485760) {
+            alert('Please select a file smaller that 10mb');
+        } else {
+            const fileArray = Array.from(event.nativeEvent.target.files);
+            setFileArr(fileArray);
+        }
+    };
 
-   const setDataAndOpenModal = (data) => {
-       console.log(data);
-       setModalShow(true);
-       setChapter(data);
-   };
+    const setDataAndOpenModal = (data) => {
+        console.log(data);
+        setModalShow(true);
+        setChapter(data);
+    };
 
+    const createContent = () => {
+        /*     axiosInstance.post('/course/addcontent', {
+                "courseId": selectedChapter.courseId,
+                "contentTitle": "Second Content for Arnab",
+                "contentId": 102,
+                "chapterId": selectedChapter.chapterId,
+                "contentType": "Text",
+                "content": "My Second Content to set the data in server"
+            }).then(response => {
+                console.log('created content', response);
+            });
+     */
+        const formData = new FormData();
+
+        for (let i = 0; i < fileArr.length; i += 1) {
+            const file = fileArr[i];
+            formData.append('files', file);
+        }
+        debugger;
+        for (const key of formData.entries()) {
+            console.log(key);
+        }
+        Axios({
+            url: 'http://localhost:8000/course/upload',
+            method: 'POST',
+            params: { contentId: 101},
+            data: formData,
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then(response => {
+              console.log(response);
+          });
+
+    };
 
     return (
         <Row style={{ margin: '30px' }}>
@@ -207,12 +256,13 @@ const Admin = () => {
                             <Form.Label>Example textarea</Form.Label>
                             <Form.Control as="textarea" rows="3" />
                         </Form.Group>
-                        <Form.Group> <Form.Label>Upload file </Form.Label>   <input type="file" /> </Form.Group>
-                    
+                        <Form.Group> <Form.Label>Upload file </Form.Label>
+                            <input type="file" onChange={handleFileUpload} /> </Form.Group>
+
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={handleClose}>Add</Button>
+                    <Button onClick={createContent}>Add</Button>
                 </Modal.Footer>
             </Modal>                <Col sm={4}>
                 <ListGroup style={{ cursor: 'pointer' }}>
@@ -261,7 +311,7 @@ const Admin = () => {
                             <div id="content">
                                 <p>content loads here</p>
                                 <video width="320" height="240" controls>
-                                    <source src="http://localhost:8000/course/files/video1.mp4" type="video/mp4" />
+                                    <source src="http://localhost:8000/course/files/SampleVideo_1280x720_5mb.mp4" type="video/mp4" />
                                     Your browser does not support the video tag.
                             </video>
                             </div>
