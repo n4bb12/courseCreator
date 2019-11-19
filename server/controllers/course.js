@@ -1,4 +1,6 @@
+/* eslint-disable consistent-return */
 const express = require('express');
+
 const router = express.Router();
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -6,6 +8,7 @@ const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 
 const courseService = require('../services/courseCreate');
+
 let db;
 let GFS;
 let connectionURL = null;
@@ -13,9 +16,9 @@ let filestorage;
 
 mongoose.connection.once('open',async () => {
     db = mongoose.connection.db;
-    //console.log(db);
+    // console.log(db);
     connectionURL = mongoose.connection.client.s.url;      
-    console.log('final url' + connectionURL);
+    console.log(`final url${  connectionURL}`);
     GFS = Grid(db, mongoose.mongo);
     GFS.collection('fileuploads');
 
@@ -27,7 +30,7 @@ mongoose.connection.once('open',async () => {
 filestorage = new GridFsStorage({
     url: 'mongodb://localhost:27017/coursecreator',
     file: (req, file) => {
-    console.log('connection url' +connectionURL);
+    console.log(`connection url${ connectionURL}`);
     console.log(req.query);
     return {
         filename: file.originalname,
@@ -57,31 +60,39 @@ filestorage = new GridFsStorage({
 
 router.post('/create', (req, res) => {
     courseService.courseCreate(req, res);
-})
+});
 
 router.put('/update', (req, res) => {
     courseService.courseUpdate(req, res);
-})
+});
 
 router.get('/', (req, res) => {
    courseService.fetchCourses(req, res);
-})
+});
 
 router.post('/fetchchapters', (req, res) => {
     courseService.fetchChapters(req, res);
- })
+ });
  
 router.post('/addchapter', (req, res) => {
     courseService.addChapter(req, res);
-})
+});
 
 router.put('/updatechapter', (req, res) => {
     courseService.updateChapter(req, res);
-})
+});
 
 router.post('/addContent', (req, res) => {
     courseService.addContent(req, res);
-})
+});
+
+router.put('/updatecontent', (req, res) => {
+  courseService.updatecontent(req, res);
+});
+
+router.post('/getallmediacontent', (req, res) => {
+  courseService.getallmediacontent(req, res);
+});
 
 router.post('/upload', upload.array('files'), (req, res) => {
    /*  console.log(req);
@@ -107,9 +118,18 @@ router.get('/files/:filename', (req, res) => {
   });
 });
 
-/* router.post('/getallfiles/allfiles', (req, res) => {
-  ideaListController.getIdeaAssetAttachments(req, res);
-}); */
+router.post('/getcontent', (req, res) => {
+  courseService.getContent(req, res);
+});
 
+
+router.post('/enrollcourse', (req, res) => {
+  courseService.enrollCourse(req, res);
+});
+
+
+router.post('/fetchenrollcourses', (req, res) => {
+  courseService.fetchEnrollCourses(req, res);
+});
 
 module.exports = router;

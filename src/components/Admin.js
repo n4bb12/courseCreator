@@ -5,46 +5,58 @@
 /* eslint-disable no-console */
 /* eslint-disable no-restricted-globals */
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Card, Col, ListGroup, Row, Modal } from 'react-bootstrap';
+import { Form, Button, Card, Col, ListGroup, Row, Modal, Alert, Accordion } from 'react-bootstrap';
 import Axios from 'axios';
+import { useHistory } from "react-router-dom";
 import axiosInstance from '../api';
+import './Admin.css';
+import googleAuth from './googleAuth';
+
+const uniqid = require('uniqid');
+
 // import courseCommonModal from './commons/modal';
 
 const Admin = () => {
+    let history = useHistory();
     const courseDataArr = [{
         name: 'Course Name',
         id: 'courseName',
-        placeholder: 'Enter Course Name',
+        placeholder: 'Enter Course Name, not to exceed 255 characters',
         type: 'text',
-        value: ''
+        value: '',
+        maxlength: 255
     },
     {
         name: 'Subtitle',
         id: 'courseSubtitle',
-        placeholder: 'Enter Course Subtitle',
+        placeholder: 'Enter Course Subtitle, not to exceed 255 characters',
         type: 'text',
-        value: ''
+        value: '',
+        maxlength: 255
     },
     {
         name: 'Description',
         id: 'courseDesc',
         placeholder: 'Enter Description of the Course',
         type: 'textarea',
-        value: ''
+        value: '',
+        maxlength: 255
     },
     {
         name: 'Price',
         id: 'coursePrice',
         placeholder: 'Enter Course Price',
         type: 'text',
-        value: ''
+        value: '',
+        maxlength: 255
     },
     {
         name: 'Duration',
         id: 'courseDuration',
         placeholder: 'Enter Duration of the Course',
         type: 'text',
-        value: ''
+        value: '',
+        maxlength: 255
     }
     ];
 
@@ -53,37 +65,75 @@ const Admin = () => {
     const [viewFlag, setViewFlag] = useState({ create: false, view: true, courseView: false });
     const [selectedCourseObj, setCourseObj] = useState({});
     const [chapterArr, setChapterArr] = useState([]);
+    const [contentArr, setContentArr] = useState([]);
+    
     const [modalShow, setModalShow] = useState(false);
+
+    const [showChapterModal, setChapterModal] = useState(false);
     const [selectedChapter, setChapter] = useState({});
     const [fileArr, setFileArr] = useState([]);
+    const [chapterCreateUpdateFlag, setChapterCreateUpdateFlag] = useState({create: true, update: false});
+    const [contentCreateUpdateFlag, setContentCreateUpdateFlag] = useState({create: true, update: false});
+    const [textFileContentFlag, setTextFileContentFlag] = useState({textcontent: true, filecontent: false});
+
+    const [newChapterData, setNewChapterData] = useState({title: '', order: ''});
+    const [newContentData, setNewContentData] = useState({title: '', order: '', content: '', type: 'text'});
 
 
     const handleClose = () => setModalShow(false);
 
+    const handleChapterModal = () => setChapterModal(false);
+    const [show, setShow] = useState(false);
+
+    const handleCloseFirstModal = () => setShow(false);
+    const handleShowFirstModal = () => setShow(true);
+
     useEffect(() => {
+        if(!localStorage.getItem('loggedUser')){
+            handleShowFirstModal();
+        }
+        else{
+            const { email } = JSON.parse(localStorage.getItem('loggedUser'));
+
+            axiosInstance.get('/course/', {
+                params: {
+                    email,
+                    view: 'admin'
+                }
+            }).then(response => {
+                console.log(response);
+                setcreatedCourseArr(response.data.response);
+            });
+        }
+
+    }, []);
+
+    const fetchAllCourses = () => {
         const { email } = JSON.parse(localStorage.getItem('loggedUser'));
         axiosInstance.get('/course/', {
             params: {
                 email
             }
-        }).then(response => {
-            console.log(response);
-            setcreatedCourseArr(response.data.response);
+        }).then(courseresponse => {
+            setcreatedCourseArr(courseresponse.data.response);
         });
-    }, []);
+    };
 
     const submitCourse = () => {
         console.log(courseFormArr);
         axiosInstance.post('/course/create', {
-            "courseId": 11,
+            "courseId": uniqid(),
             "email": "arnab.sadhya@gmail.com",
             "courseName": courseFormArr[0].value,
             "courseSubtitle": courseFormArr[1].value,
             "courseDesc": courseFormArr[2].value,
             "coursePrice": courseFormArr[3].value,
-            "courseDuration": courseFormArr[4].value
+            "courseDuration": courseFormArr[4].value,
+            "status": "draft"
         }).then(response => {
             console.info('Course Created Successfully', response);
+            setViewFlag({ create: false, view: true });
+            fetchAllCourses();
         });
     };
 
@@ -145,7 +195,9 @@ const Admin = () => {
 
     };
 
-    const addChapter = (_courseData) => {
+  /*   const addChapter = (_courseData) => {
+
+        setChapterModal(true);
         axiosInstance.post('/course/addchapter', {
             courseId: _courseData.courseId,
             chapterTitle: "New Chapter 1",
@@ -156,6 +208,59 @@ const Admin = () => {
             console.info('Chapter Created Successfully', response);
         });
     };
+ */
+
+
+const editChapterOpenModal = (chapterObj) => {
+    setChapterCreateUpdateFlag({create: false, update: true});
+    const existingChapterData = {...newChapterData};
+    existingChapterData.title = chapterObj.chapterTitle;
+    existingChapterData.order = chapterObj.chapterOrder;
+    existingChapterData.chapterId = chapterObj.chapterId;
+    existingChapterData.courseId = chapterObj.courseId;
+    setNewChapterData(existingChapterData);
+    setChapterModal(true);
+};
+
+const syncCurrentChapters = (passedCourseId) => {
+
+    axiosInstance.post('/course/fetchchapters', {
+        email: 'arnab.sadhya@gmail.com',
+        courseId: passedCourseId
+    }).then(chapRes => {
+        console.log('chapter for courses', chapRes);
+        handleChapterModal();
+        setChapterArr(chapRes.data.response);
+    });
+};
+
+const updateChapter = () => {
+    axiosInstance.put('/course/updatechapter', {
+        chapterId: newChapterData.chapterId,
+        courseId: newChapterData.courseId,
+        chapterTitle: newChapterData.title,
+        chapterOrder: newChapterData.order,
+        email: 'arnab.sadhya@gmail.com'
+    }).then(response => {
+        console.log(response.data.response);
+        syncCurrentChapters(newChapterData.courseId);
+    });
+};
+
+    const saveChapter = () => {
+        axiosInstance.post('/course/addchapter', {
+            courseId: newChapterData.courseId,
+            chapterTitle: newChapterData.title,
+            chapterOrder: newChapterData.order,
+            chapterId: uniqid(),
+            email: 'arnab.sadhya@gmail.com'
+        }).then(response => {
+            console.info('Chapter Created Successfully', response);
+            syncCurrentChapters(newChapterData.courseId);
+        });
+    };
+
+    // content code starts/////////
 
     const handleFileUpload = (event) => {
         debugger;
@@ -168,51 +273,205 @@ const Admin = () => {
         }
     };
 
+    const handleContentInput = (event, source) => {
+        console.log(source);
+        if(source === 'addchaptername')
+        {
+            setNewChapterData({...newChapterData, title: event.target.value, courseId: selectedCourseObj.courseId});
+        }
+        if(source === 'addchapterorder'){
+            setNewChapterData({...newChapterData,order: event.target.value, courseId: selectedCourseObj.courseId});
+        }
+        if(source === 'addcontenttile'){
+            setNewContentData({...newContentData, title: event.target.value, chapterId: newContentData.chapterId });
+        }
+        if(source === 'addcontentorder'){
+            setNewContentData({...newContentData, order: event.target.value, chapterId: newContentData.chapterId });
+        }
+        if(source === 'addcontenttext'){
+            setNewContentData({...newContentData, content: event.target.value, chapterId: newContentData.chapterId });
+        }
+        console.log(event);
+        console.log(newChapterData);
+    };
+
     const setDataAndOpenModal = (data) => {
         console.log(data);
         setModalShow(true);
         setChapter(data);
+        setNewContentData({title: '', order: '' , content: ''})
+    };
+
+    const editContentOpenModal = (editedContent) => {
+        console.log(editedContent);
+
+
+
+        ClassicEditor
+        .create( document.querySelector( '#editor' ) )
+        .then( editor => {
+            console.log( editor );
+        } )
+        .catch( error => {
+            console.error( error );
+        } );
+
+
+        setModalShow(true);
+       const existingContentData = {...newContentData};
+       console.log(existingContentData);
+       existingContentData.title = editedContent.contentTitle;
+       existingContentData.order = editedContent.contentOrder;
+       existingContentData.content = editedContent.content;
+       existingContentData.contentId =editedContent.contentId;
+       existingContentData.chapterId = editedContent.chapterId;
+       setNewContentData(existingContentData);
+    };
+
+    const getContentData = (val) => {
+        console.log('chapter selected', val);
+        axiosInstance.post('/course/getcontent',{
+            chapterId: val.chapterId
+        }).then(response => {
+            console.log(response.data.response);
+            setContentArr(response.data.response);
+        });
     };
 
     const createContent = () => {
-        /*     axiosInstance.post('/course/addcontent', {
-                "courseId": selectedChapter.courseId,
-                "contentTitle": "Second Content for Arnab",
-                "contentId": 102,
+          axiosInstance.post('/course/addcontent', {
+                "contentTitle": newContentData.title,
+                "contentId": uniqid(),
                 "chapterId": selectedChapter.chapterId,
-                "contentType": "Text",
-                "content": "My Second Content to set the data in server"
+                "contentType":newContentData.type ,
+                "content": newContentData.content,
+                "contentOrder":newContentData.order
             }).then(response => {
                 console.log('created content', response);
+                setModalShow(false);
+                getContentData(selectedChapter.chapterId);
+                // if there is file associated with it then upload the  file in chunks
+             if(newContentData.type === 'filecontent'){
+                const formData = new FormData();
+
+                for (let i = 0; i < fileArr.length; i += 1) {
+                    const file = fileArr[i];
+                    formData.append('files', file);
+                }
+                for (const key of formData.entries()) {
+                    console.log(key);
+                }
+                Axios({
+                    url: 'http://localhost:8000/course/upload',
+                    method: 'POST',
+                    params: { contentId: response.data.response.contentId},
+                    data: formData,
+                    headers: {
+                      Accept: 'application/json',
+                      'Content-Type': 'multipart/form-data'
+                    }
+                  }).then(fileUploadResponse => {
+                      console.log(fileUploadResponse);
+                  });
+             } 
+ 
+
             });
-     */
-        const formData = new FormData();
 
-        for (let i = 0; i < fileArr.length; i += 1) {
-            const file = fileArr[i];
-            formData.append('files', file);
-        }
-        debugger;
-        for (const key of formData.entries()) {
-            console.log(key);
-        }
-        Axios({
-            url: 'http://localhost:8000/course/upload',
-            method: 'POST',
-            params: { contentId: 101},
-            data: formData,
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'multipart/form-data'
-            }
-          }).then(response => {
-              console.log(response);
-          });
 
+    };
+    const updateContent = () => {
+        console.log("before updating content", newContentData);
+        axiosInstance.put('/course/updatecontent',{
+            "contentId": newContentData.contentId,
+            "contentTitle": newContentData.title,
+            "chapterId": newContentData.chapterId,
+            "contentType": newContentData.type,
+            "content": newContentData.content,
+            "contentOrder":newContentData.order
+        }).then(response => {
+            console.log(response);
+        });
+    };
+
+    const handleRadioClick = (event) => {
+        console.log(event.target.value);
+        newContentData.type = event.target.value;
+        console.log(newContentData);
+        if(newContentData.type === 'textcontent'){
+            setTextFileContentFlag({textcontent: true, filecontent: false});
+        }
+        else{
+            setTextFileContentFlag({textcontent: false, filecontent: true});
+        }
+    };
+
+
+    const selectChapterForContent = (event) => {
+        const newChapter = event.target.value;
+        setNewContentData({...newContentData, chapterId: newChapter });
     };
 
     return (
         <Row style={{ margin: '30px' }}>
+  <Modal show={show} onHide={handleCloseFirstModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Create Course</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div>
+            {!localStorage.getItem('loggedUser') &&  <Alert variant="danger">
+            Please login to create a course
+            </Alert> }
+          </div>
+          </Modal.Body>
+        <Modal.Footer>
+          {!localStorage.getItem('loggedUser') && <Button variant="secondary" onClick={handleCloseFirstModal}>
+            Close
+          </Button>}
+          {!localStorage.getItem('loggedUser') && <googleAuth/>}
+        </Modal.Footer>
+      </Modal>    
+
+
+
+            <Modal show={showChapterModal} onHide={handleChapterModal}>
+                    <Modal.Header closeButton>
+                    <Modal.Title>Add a chapter</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="formBasicTitle">
+                            <Form.Label>Chapter Title</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Chapter Name" 
+                            value ={newChapterData.title} 
+                            maxLength ="255"
+                            onChange= {(event) => handleContentInput(event,'addchaptername',)} />
+                             <Form.Text className="text-muted">
+                                       Total length remaining {255 - newChapterData.title.length}
+                                    </Form.Text>
+                        </Form.Group>
+
+                        <Form.Group controlId="formBasicOrder">
+                            <Form.Label>Order</Form.Label>
+                            <Form.Control type="text" placeholder="Chapter Order" 
+                            value ={newChapterData.order} 
+                            onChange= {(event) => handleContentInput(event, 'addchapterorder')} />
+                        </Form.Group>
+                        </Form>
+
+                    </Modal.Body>
+                    <Modal.Footer>
+                    {chapterCreateUpdateFlag.create === true? <Button variant="primary" onClick={saveChapter}>
+                        Create
+                     </Button> : ''}
+
+                    {chapterCreateUpdateFlag.update === true ? <Button variant ="success" onClick={updateChapter}>Update</Button> : ''}
+
+                    </Modal.Footer>
+                </Modal>
+
+
             <Modal show={modalShow}
                 size="lg"
                 aria-labelledby="contained-modal-title-vcenter"
@@ -221,105 +480,170 @@ const Admin = () => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title-vcenter">
-                        Add Content
+                        Chapter Content
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="formBasicEmail">
                             <Form.Label>Content Title</Form.Label>
-                            <Form.Control type="text" placeholder="Content Title" />
+                            <Form.Control type="text" placeholder="Content Title"
+                            value ={newContentData.title} 
+                            onChange= {(event) => handleContentInput(event, 'addcontenttile')}/>
+                        </Form.Group>
+
+                        {contentCreateUpdateFlag.update === true &&
+                        <Form.Group controlId="exampleForm.ControlSelect1">
+                            <Form.Label>Chapter</Form.Label>
+                            <Form.Control as="select" onClick={() => selectChapterForContent(event)}>
+                                {chapterArr.map(val => (
+                                    <option value={val.chapterId}>{val.chapterTitle}</option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
+                        }
+                            <Form.Group controlId="formBasicEmail">
+                            <Form.Label>Content Order</Form.Label>
+                            <Form.Control type="text" placeholder="Content Title"
+                            value ={newContentData.order} 
+                            onChange= {(event) => handleContentInput(event, 'addcontentorder')}/>
                         </Form.Group>
                         <fieldset>
                             <Form.Group as={Row}>
-                                <Form.Label as="legend" column sm={2}>
+                                <Form.Label as="legend" column sm={4}>
                                     Select Content Type
-      </Form.Label>
+                                 </Form.Label>
                                 <Col sm={10}>
                                     <Form.Check
                                         type="radio"
                                         label="Text/HTML"
                                         name="formHorizontalRadios"
                                         id="formHorizontalRadios1"
+                                        checked={textFileContentFlag.textcontent}
+                                        value="textcontent"
+                                        onChange= {(event) => handleRadioClick(event)}
                                     />
                                     <Form.Check
                                         type="radio"
                                         label="File Upload"
                                         name="formHorizontalRadios"
+                                        checked = {textFileContentFlag.filecontent}
                                         id="formHorizontalRadios2"
+                                        value="filecontent"
+                                        onChange= {(event) => handleRadioClick(event)}
                                     />
                                 </Col>
                             </Form.Group>
                         </fieldset>
 
-                        <Form.Group controlId="exampleForm.ControlTextarea1">
+                        { textFileContentFlag.textcontent === true ? <Form.Group controlId="exampleForm.ControlTextarea1">
                             <Form.Label>Example textarea</Form.Label>
-                            <Form.Control as="textarea" rows="3" />
-                        </Form.Group>
-                        <Form.Group> <Form.Label>Upload file </Form.Label>
-                            <input type="file" onChange={handleFileUpload} /> </Form.Group>
+
+                            <textarea name="content" id="editor">
+    &lt;p&gt;Here goes the initial content of the editor.&lt;/p&gt;
+</textarea>
+                           <Form.Control as="textarea" rows="3" 
+                            value ={newContentData.content} 
+                            id="contentTextArea"
+                            onChange= {(event) => handleContentInput(event,'addcontenttext')} />
+                        </Form.Group> : ''}
+                        { textFileContentFlag.filecontent === true ? <Form.Group> <Form.Label>Upload file </Form.Label>
+                            <input type="file" onChange={handleFileUpload} /> </Form.Group> : ''}
 
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={createContent}>Add</Button>
+                    {contentCreateUpdateFlag.create === true ? <Button onClick={createContent}>Create</Button> : ''}
+                    {contentCreateUpdateFlag.update === true ? <Button onClick={updateContent}>Update</Button>  : ''}
                 </Modal.Footer>
-            </Modal>                <Col sm={4}>
+            </Modal>                
+            
+            <Col sm={3}>
                 <ListGroup style={{ cursor: 'pointer' }}>
                     <ListGroup.Item className={viewFlag.create ? 'active' : 'inactive'} onClick={() => selectView('create')}>Create new course</ListGroup.Item>
                     <ListGroup.Item className={viewFlag.view ? 'active' : 'inactive'} onClick={() => selectView('view')}>View/Edit Course</ListGroup.Item>
                 </ListGroup>
             </Col>
 
-            <Col sm={8} style={{ backgroundColor: 'white' }}>
+            <Col sm={9} className="courseSection">
 
-                <div className="courseView">
                     <Row>
+                    {createdCourseArr.length === 0 && viewFlag.view && 
+                    <div style={{margin:'auto'}}>
+                    <Alert variant="info">
+                            You have not created a course yet, Feel free to create one
+                    </Alert>
+                    </div>
+                    }
                         {viewFlag.view && createdCourseArr.map(val => (
-                            <Col sm={4}>
+                            <Col sm={5}>
                                 <Card>
                                     <Card.Body>
                                         <Card.Title>{val.courseName}</Card.Title>
+                                        <Card.Title>Status: {val.status}</Card.Title>
                                         <Card.Text>
                                             {val.courseDesc}
                                         </Card.Text>
                                         <Card.Text>Price: {val.coursePrice}</Card.Text>
                                         <Button variant="primary" style={{ marginRight: '10px' }} onClick={() => selectCourse(val)}>Select Course</Button>
-
-                                        <Button variant="primary" style={{ marginRight: '10px' }} onClick={() => editCourse(val)}>Edit Course</Button>
+                                        <Button variant="success" onClick={() => {
+                                                history.push(`/view-course?id=${val.courseId}`);
+                                        }}>Preview Course</Button>
+                                        <Button variant="warning" style={{ marginRight: '10px', marginTop:'10px' }} onClick={() => editCourse(val)}>Edit Course</Button>
                                     </Card.Body>
                                 </Card>
                             </Col>
                         ))}
-                        {viewFlag.courseView && <div>
+                        {viewFlag.courseView &&  
+                        <Col sm={12} id="chapters">
+                            <div className="selectedChapterSection">
                             <p>Name : {selectedCourseObj.courseName}</p>
-                            <p>Price : {selectedCourseObj.price}</p>
-                            <Button variant="primary" onClick={() => addChapter(selectedCourseObj)}>Add Chapter</Button>
-                            <div id="chapters">
-                                {chapterArr.map(val => (
-                                    <Card>
-                                        <Card.Header>{val.chapterTitle}</Card.Header>
-                                        <Card.Body>
-                                            <Card.Text>
-                                                Add Content here...
-                               </Card.Text>
-                                            <Button variant="primary" onClick={() => setDataAndOpenModal(val)}>Add Content</Button>
-                                        </Card.Body>
-                                    </Card>
+                            <p>Price : {selectedCourseObj.coursePrice}</p>
+                            <Button variant="primary" onClick={() =>  {
+                                setChapterCreateUpdateFlag({create: true, update: false});
+                                setChapterModal(true);
+                                }}>Add Chapter</Button>
+                            </div>
+                            <Accordion>
+
+                                {chapterArr.map((val,index) => (
+
+                                        <Card>
+                                            <Card.Header>
+                                            <Accordion.Toggle as={Button} variant="link" eventKey={index} onClick={() => getContentData(val)}>
+                                            {val.chapterTitle}
+                                            </Accordion.Toggle>
+                                            <Button className="updateChapterBtn" variant="secondary" onClick={() => editChapterOpenModal(val)}>Update Chapter</Button>
+                                            </Card.Header>
+                                            <Accordion.Collapse eventKey={index}>
+                                            <Card.Body>
+                                            {contentArr.length === 0 && <div>No Content</div>}    
+                                            {contentArr.length > 0 && contentArr.map(contentRes => (
+                                                <div className="contentSection">
+                                                    <Button className="updateChapterBtn" onClick={() => {
+                                                        setContentCreateUpdateFlag({create: false, update: true});
+                                                        editContentOpenModal(contentRes);
+                                                       }
+                                                    }>Edit Content</Button>
+                                                    <p>{contentRes.contentTitle}</p>
+                                                    <p>{contentRes.content}</p>
+                                                    <div id="mediaContent">                                       
+                                                    </div> 
+                                                 </div>   
+                                            ))}
+                                            <Button variant="info" onClick={() => {
+                                                setContentCreateUpdateFlag({create: true, update: false});
+                                                setDataAndOpenModal(val);
+                                                }
+                                            }>Add Content</Button>
+                                            </Card.Body>
+                                            </Accordion.Collapse>
+                                        </Card>
                                 ))}
-                            </div>
-                            <div id="content">
-                                <p>content loads here</p>
-                                <video width="320" height="240" controls>
-                                    <source src="http://localhost:8000/course/files/SampleVideo_1280x720_5mb.mp4" type="video/mp4" />
-                                    Your browser does not support the video tag.
-                            </video>
-                            </div>
-                        </div>
+                            </Accordion>
+                        </Col>
                         }
                     </Row>
-
-                </div>
 
 
                 <div className="courseCreate">
@@ -328,13 +652,18 @@ const Admin = () => {
                             {courseFormArr.map((val, index) => (
                                 <Form.Group key={val.id} controlId={val.id}>
                                     <Form.Label>{val.name}</Form.Label>
-                                    <Form.Control type="text" placeholder={val.placeholder} value={val.value} onChange={() => handleInputChange(event, index)} />
+                                    <Form.Control maxLength ={val.maxlength} type="text" placeholder={val.placeholder} value={val.value} onChange={() => handleInputChange(event, index)} />
+                                    
+                                    {(val.id === 'courseName' || val.id === 'courseSubtitle') && <Form.Text className="text-muted">
+                                       Total length remaining {val.maxlength - val.value.length}
+                                    </Form.Text>
+                                    }
                                 </Form.Group>
                             ))
                             }
                             {/*    <ButtonComp text="Add Course" handleOnSubmit = {() => submitCourse()} />   */}
                             <Button variant="primary" onClick={submitCourse} style={{ marginRight: '10px' }}>ADD COURSE</Button>
-                            <Button variant="primary" onClick={updateCourse}>Update Course</Button>
+                            <Button variant="info" onClick={updateCourse}>Update Course</Button>
                         </Form>
                     }
                 </div>

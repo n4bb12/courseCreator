@@ -2,11 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const chapterSchema = new mongoose.Schema({
-  courseId: Number,
-  chapterId: Number,
+  courseId: String,
+  chapterId: String,
   chapterTitle: String,
-  chapterOrder: Number,
-  email:String
+  chapterOrder: Number
 });
 
 module.exports = mongoose.model('chapterDetails', chapterSchema);

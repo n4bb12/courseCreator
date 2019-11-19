@@ -1,0 +1,35 @@
+.courseSection{
+    background-color: white;
+    padding: 30px;
+    border-radius: 25px;
+}
+
+.selectedChapterSection{
+    padding:10px;
+    margin: 10px;
+    border: 1px solid #ccc;
+}
+
+.accordion{
+    margin:10px;
+}
+
+.updateChapterBtn{
+    float: right;
+}
+
+.contentSection {
+    border:1px solid #e5e5e5;
+    margin:10px; 
+    padding:10px;
+}
+
+.courseSection .col-sm-5 {
+    margin:10px;
+}
+.rdw-editor-main{
+    height: 275px !important;
+    border: 1px solid #F1F1F1 !important;
+    padding: 5px !important;
+    border-radius: 2px !important;
+}

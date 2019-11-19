@@ -27,6 +27,7 @@ class GoogleAuth extends React.Component {
     }
 
     onSignOutClick = () => {  
+        localStorage.removeItem('loggedUser');
         this.auth.signOut();
     }
 
@@ -45,14 +46,15 @@ class GoogleAuth extends React.Component {
 
     renderAuthButton(){
         const { loggedUserObj} = this.state;
-        if(this.props.isSignedIn === null){
-            return <div>I dont know if user is signed in </div>;
+        const { isSignedIn} = this.props;
+        if(isSignedIn === null){
+            return <div>Please login to continue</div>;
         }
-        if(this.props.isSignedIn){
+        if(isSignedIn){
             return (
             <>
                 <span>Welcome {loggedUserObj.name}</span>
-                <Button variant ="info" onClick={this.onSignOutClick} >Sign Out</Button>
+                <Button variant ="info" onClick={this.onSignOutClick} style={{marginLeft: '10px'}} >Sign Out</Button>
             </>    
            
             );    

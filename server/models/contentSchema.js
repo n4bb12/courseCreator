@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const contentSchema = new mongoose.Schema({
-  courseId: Number,
-  chapterId: Number,
-  contentId: Number,
+  courseId: String,
+  chapterId: String,
+  contentId: String,
   contentOrder: Number,
   contentTitle: String,
   contentType: String,

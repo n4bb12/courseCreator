@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
 const courseSchema = new mongoose.Schema({
-  courseId: {type: Number , unique: true},  
-  email: { type: String, unique: true },
-  courseName: { type: String, required: true, unique: true},
+  courseId: {type: String , unique: true},  
+  email: { type: String},
+  authorName: { type: String},
+  courseName: { type: String, required: true},
   courseSubtitle: { type: String},
   courseDesc: { type: String, required: true},
   coursePrice: { type: Number, required: true},
