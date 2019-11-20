@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable radix */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-undef */
@@ -20,6 +23,9 @@ const uniqid = require('uniqid');
 
 const Admin = () => {
     const history = useHistory();
+    const baseUrl =  'http://localhost:8000/course/files/';
+
+    // course form array which will generate the form fields
     const courseDataArr = [{
         name: 'Course Name',
         id: 'courseName',
@@ -62,8 +68,9 @@ const Admin = () => {
     }
     ];
 
+    // all the state values are initialized here
+
     const [courseFormArr, setCourseFormArr] = useState(courseDataArr);
-    const [enabledAddButtonCourse, setEnabledAddButtonCourse] = useState(false);
     const [createdCourseArr, setcreatedCourseArr] = useState([]);
     const [viewFlag, setViewFlag] = useState({ create: false, view: true, courseView: false , update: false });
     const [validationError, setValidationError ] = useState({flag: false , text: ''});
@@ -81,36 +88,20 @@ const Admin = () => {
 
     const [newChapterData, setNewChapterData] = useState({title: '', order: ''});
     const [newContentData, setNewContentData] = useState({title: '', order: '', content: '', type: 'text'});
+    const [loadedMediaContent, updateLoadedMediaContent] = useState('');
 
-
+    // content modal
     const handleClose = () => setModalShow(false);
 
+    // chapter modal
     const handleChapterModal = () => setChapterModal(false);
     const [show, setShow] = useState(false);
 
     const handleCloseFirstModal = () => setShow(false);
     const handleShowFirstModal = () => setShow(true);
 
-    useEffect(() => {
-        if(!localStorage.getItem('loggedUser')){
-            handleShowFirstModal();
-        }
-        else{
-            const { email } = JSON.parse(localStorage.getItem('loggedUser'));
 
-            axiosInstance.get('/course/', {
-                params: {
-                    email,
-                    view: 'admin'
-                }
-            }).then(response => {
-                console.log(response);
-                setcreatedCourseArr(response.data.response);
-            });
-        }
-
-    }, []);
-
+    // fetching all the courses
     const fetchAllCourses = () => {
         const { email } = JSON.parse(localStorage.getItem('loggedUser'));
         axiosInstance.get('/course/', {
@@ -119,18 +110,47 @@ const Admin = () => {
                 view: 'admin'
             }
         }).then(courseresponse => {
-            console.log('fetched updated course successfully', courseresponse);
+            // console.log('fetched updated course successfully', courseresponse);
             setcreatedCourseArr(courseresponse.data.response);
+        }).catch(error => {
+            console.warn(error);
         });
     };
 
 
+    useEffect(() => {
+        if(!localStorage.getItem('loggedUser')){
+            handleShowFirstModal();
+        }
+        else{
+           /*  const { email } = JSON.parse(localStorage.getItem('loggedUser'));
+
+           // fetching all the course if user is logged in
+            axiosInstance.get('/course/', {
+                params: {
+                    email,
+                    view: 'admin'
+                }
+            }).then(response => {
+                setcreatedCourseArr(response.data.response);
+            }).catch(error => {
+                console.warn(error);
+            }); */
+
+            fetchAllCourses();
+        }
+
+    }, []);
+
+
+    // function to invoke when course is getting created
     const submitCourse = () => {
         const { email } = JSON.parse(localStorage.getItem('loggedUser'));
-        console.log(courseFormArr);
+        // console.log(courseFormArr);
 
         if(courseFormArr.some( el => el.value === ''))
         {
+            // show modal alert here TO DO
             alert('Please fill all the fields');
             return;
         }
@@ -147,12 +167,16 @@ const Admin = () => {
         }).then(response => {
             console.info('Course Created Successfully', response);
             setViewFlag({ create: false, view: true });
+            // refreshing course view
             fetchAllCourses();
+        }).catch(error => {
+            console.warn(error);
         });
     };
 
 
-    
+    // updating a specific course
+
     const updateCourse = (status) => {
         axiosInstance.put('/course/update', {
             "courseId": selectedCourseObj.courseId,
@@ -163,19 +187,28 @@ const Admin = () => {
             "courseDuration": courseFormArr[4].value,
             "status": status || selectedCourseObj.status
         }).then(response => {
-            console.log('succesfully updated', response);
+            // console.log('succesfully updated', response);
+
+            // remove alert later TO DO with a popup or loading
+            if(response)
             alert('changing the view, update succesfull');
             setViewFlag({ create: false, view: true });
         });
     };
 
+    // publishing course
+
     const publishCourse = (val)  => {
         console.log(val);
         axiosInstance.patch('/course/updatestatus', { courseId: val.courseId, status: 'published' },
         ).then(response => {
-            console.log(response);
+             console.log(response);
+        }).catch(error => {
+            console.warn(error);
         });
     };
+
+    // onchange event triggrred when course form input gets changed
 
     const handleInputChange = (e, index , id = '') => {
         const newArr = [...courseFormArr];
@@ -189,10 +222,12 @@ const Admin = () => {
         setCourseFormArr(newArr);
     };
 
+    // on blur method to handle validations
+
     const handleBlur = (e,index) =>  {
 
-        console.log(e.target.id);
-        console.log(`value${  e.target.value}`);
+        // console.log(e.target.id);
+        // console.log(`value${  e.target.value}`);
         const {id} = e.target;
         let num;
         let cleanNum;
@@ -232,6 +267,9 @@ const Admin = () => {
         setCourseFormArr(newArr);
       };
 
+
+    // selecting view as course create or view
+
     const selectView = (param) => {
         if (param === 'create') {
             const tempArr = [...courseFormArr];
@@ -245,8 +283,9 @@ const Admin = () => {
         }
     };
 
+    // edit a course 
     const editCourse = (selectedCourse) => {
-        console.log(selectedCourse);
+        // console.log(selectedCourse);
         setCourseObj(selectedCourse);
 
         const tempArr = [...courseFormArr];
@@ -258,36 +297,25 @@ const Admin = () => {
         setViewFlag({ create: true, view: false , update: true });
     };
 
+    // select a course to view all the chapters
 
     const selectCourse = (param = {}) => {
-        console.log(param);
+        const { email } = JSON.parse(localStorage.getItem('loggedUser'));
         setViewFlag({ create: false, view: false, courseView: true });
         setCourseObj(param);
         axiosInstance.post('/chapter/fetchchapters', {
-            email: 'arnab.sadhya@gmail.com',
+            email,
             courseId: param.courseId
         }).then(response => {
-            console.log('chapter for courses', response);
+            // console.log('chapter for courses', response);
             setChapterArr(response.data.response);
+        }).catch(error => {
+            console.warn(error);
         });
 
     };
 
-  /*   const addChapter = (_courseData) => {
-
-        setChapterModal(true);
-        axiosInstance.post('/course/addchapter', {
-            courseId: _courseData.courseId,
-            chapterTitle: "New Chapter 1",
-            chapterOrder: 1,
-            chapterId: 1,
-            email: 'arnab.sadhya@gmail.com'
-        }).then(response => {
-            console.info('Chapter Created Successfully', response);
-        });
-    };
- */
-
+// when chapter modal opend
 
 const editChapterOpenModal = (chapterObj) => {
     setChapterCreateUpdateFlag({create: false, update: true});
@@ -300,17 +328,21 @@ const editChapterOpenModal = (chapterObj) => {
     setChapterModal(true);
 };
 
+// sync current chapters upon update
+
 const syncCurrentChapters = (passedCourseId) => {
 
     axiosInstance.post('/chapter/fetchchapters', {
         email: 'arnab.sadhya@gmail.com',
         courseId: passedCourseId
     }).then(chapRes => {
-        console.log('chapter for courses', chapRes);
+        // console.log('chapter for courses', chapRes);
         handleChapterModal();
         setChapterArr(chapRes.data.response);
     });
 };
+
+// update chapter
 
 const updateChapter = () => {
     axiosInstance.put('/chapter/updatechapter', {
@@ -320,8 +352,10 @@ const updateChapter = () => {
         chapterOrder: newChapterData.order,
         email: 'arnab.sadhya@gmail.com'
     }).then(response => {
-        console.log(response.data.response);
+        if(response)
         syncCurrentChapters(newChapterData.courseId);
+    }).catch(error => {
+        console.warn(error);
     });
 };
 
@@ -351,8 +385,9 @@ const updateChapter = () => {
         }
     };
 
+    // handle onchange for content modal
+
     const handleContentInput = (event, source) => {
-        console.log(source);
         if(source === 'addchaptername')
         {
             setNewChapterData({...newChapterData, title: event.target.value, courseId: selectedCourseObj.courseId});
@@ -369,12 +404,9 @@ const updateChapter = () => {
         if(source === 'addcontenttext'){
             setNewContentData({...newContentData, content: event.editor.getData(), chapterId: newContentData.chapterId });
         }
-        console.log(event);
-        console.log(newChapterData);
     };
 
     const setDataAndOpenModal = (data) => {
-        console.log(data);
         setModalShow(true);
         setChapter(data);
         setNewContentData({title: '', order: '' , content: ''});
@@ -384,12 +416,13 @@ const updateChapter = () => {
         axiosInstance.post('/course/getallmediacontent', {
             contentId
         }).then(response => {
-            console.log('video files', response.data[0]);
+             console.log('video files', response.data[0]);
+             updateLoadedMediaContent(response.data[0]);
         });
     };
 
     const editContentOpenModal = (editedContent) => {
-        console.log(editedContent);
+        // console.log(editedContent);
         const {contentType} = editedContent;
 
         if(contentType === 'textcontent'){
@@ -404,7 +437,7 @@ const updateChapter = () => {
 
         setModalShow(true);
        const existingContentData = {...newContentData};
-       console.log(existingContentData);
+       // console.log(existingContentData);
        existingContentData.title = editedContent.contentTitle;
        existingContentData.order = editedContent.contentOrder;
        existingContentData.content = editedContent.content;
@@ -415,12 +448,14 @@ const updateChapter = () => {
     };
 
     const getContentData = (val) => {
-        console.log('chapter selected', val);
+        // console.log('chapter selected', val);
         axiosInstance.post('/course/getcontent',{
             chapterId: val.chapterId
         }).then(response => {
-            console.log(response.data.response);
+            // console.log(response.data.response);
             setContentArr(response.data.response);
+        }).catch(error => {
+            console.warn(error);
         });
     };
 
@@ -433,11 +468,10 @@ const updateChapter = () => {
                 "content": newContentData.content,
                 "contentOrder":newContentData.order
             }).then(response => {
-                console.log('created content', response);
-                setModalShow(false);
+                // console.log('created content', response);
                 getContentData(selectedChapter.chapterId);
                 const {contentId} = response.data.response;
-                console.log(`content id is ${  contentId}`);
+                // console.log(`content id is ${  contentId}`);
                 // if there is file associated with it then upload the  file in chunks
              if(newContentData.type === 'filecontent'){
                 const formData = new FormData();
@@ -457,17 +491,23 @@ const updateChapter = () => {
                       'Content-Type': 'multipart/form-data'
                     }
                   }).then(fileUploadResponse => {
-                      console.log(fileUploadResponse);
-                  }); 
+                        console.log(fileUploadResponse);
+                  }).catch(error => {
+                    console.warn(error);
+                }); 
              } 
- 
+             
              setContentArr(response.data.response);
+             setModalShow(false);
+
+            }).catch(error => {
+                console.warn(error);
             });
 
 
     };
     const updateContent = () => {
-        console.log("before updating content", newContentData);
+        // console.log("before updating content", newContentData);
         axiosInstance.put('/course/updatecontent',{
             "contentId": newContentData.contentId,
             "contentTitle": newContentData.title,
@@ -477,13 +517,13 @@ const updateChapter = () => {
             "contentOrder":newContentData.order
         }).then(response => {
             console.log(response);
+        }).catch(error => {
+            console.warn(error);
         });
     };
 
     const handleRadioClick = (event) => {
-        console.log(event.target.value);
         newContentData.type = event.target.value;
-        console.log(newContentData);
         if(newContentData.type === 'textcontent'){
             setTextFileContentFlag({textcontent: true, filecontent: false});
         }
@@ -498,6 +538,12 @@ const updateChapter = () => {
     const selectChapterForContent = (event) => {
         const newChapter = event.target.value;
         setNewContentData({...newContentData, chapterId: newChapter });
+    };
+
+
+    const downloadFile = (filename) => {
+        const file = `${baseUrl}${filename}`;
+        window.open(file);
     };
 
     return (
@@ -643,6 +689,7 @@ const updateChapter = () => {
                             <input type="file" onChange={handleFileUpload} /> </Form.Group> : ''}
 
                     </Form>
+                    <a onClick={() => downloadFile(loadedMediaContent.filename)}>Click to open existing content</a>
                 </Modal.Body>
                 <Modal.Footer>
                     {contentCreateUpdateFlag.create === true ? <Button onClick={createContent}>Create</Button> : ''}
@@ -653,7 +700,7 @@ const updateChapter = () => {
             <Col sm={3}>
                 <ListGroup style={{ cursor: 'pointer' }}>
                     <ListGroup.Item className={viewFlag.create ? 'active' : 'inactive'} onClick={() => selectView('create')}>Create new course</ListGroup.Item>
-                    <ListGroup.Item className={viewFlag.view ? 'active' : 'inactive'} onClick={() => selectView('view')}>View/Edit Course</ListGroup.Item>
+                    <ListGroup.Item className={(viewFlag.view === true || viewFlag.courseView === true )  ? 'active' : 'inactive'} onClick={() => selectView('view')}>View/Edit Course</ListGroup.Item>
                 </ListGroup>
             </Col>
 
@@ -720,7 +767,6 @@ const updateChapter = () => {
                                                     }>Edit Content</Button>
                                                     <p>{contentRes.contentTitle}</p>
                                                     <p>{contentRes.content}</p>
-                                                    <div id="mediaContent" /> 
                                                  </div>   
                                             ))}
                                             <Button variant="info" onClick={() => {
