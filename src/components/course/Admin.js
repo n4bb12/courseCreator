@@ -87,7 +87,7 @@ const Admin = () => {
     const [textFileContentFlag, setTextFileContentFlag] = useState({textcontent: true, filecontent: false});
 
     const [newChapterData, setNewChapterData] = useState({title: '', order: ''});
-    const [newContentData, setNewContentData] = useState({title: '', order: '', content: '', type: 'text'});
+    const [newContentData, setNewContentData] = useState({title: '', order: '', content: '', type: 'textcontent'});
     const [loadedMediaContent, updateLoadedMediaContent] = useState('');
 
     // content modal
@@ -331,9 +331,10 @@ const editChapterOpenModal = (chapterObj) => {
 // sync current chapters upon update
 
 const syncCurrentChapters = (passedCourseId) => {
+    const { email } = JSON.parse(localStorage.getItem('loggedUser'));
 
     axiosInstance.post('/chapter/fetchchapters', {
-        email: 'arnab.sadhya@gmail.com',
+        email,
         courseId: passedCourseId
     }).then(chapRes => {
         // console.log('chapter for courses', chapRes);
@@ -345,12 +346,14 @@ const syncCurrentChapters = (passedCourseId) => {
 // update chapter
 
 const updateChapter = () => {
+    const { email } = JSON.parse(localStorage.getItem('loggedUser'));
+
     axiosInstance.put('/chapter/updatechapter', {
         chapterId: newChapterData.chapterId,
         courseId: newChapterData.courseId,
         chapterTitle: newChapterData.title,
         chapterOrder: newChapterData.order,
-        email: 'arnab.sadhya@gmail.com'
+        email
     }).then(response => {
         if(response)
         syncCurrentChapters(newChapterData.courseId);
@@ -360,12 +363,14 @@ const updateChapter = () => {
 };
 
     const saveChapter = () => {
+        const { email } = JSON.parse(localStorage.getItem('loggedUser'));
+
         axiosInstance.post('/chapter/addchapter', {
             courseId: newChapterData.courseId,
             chapterTitle: newChapterData.title,
             chapterOrder: newChapterData.order,
             chapterId: uniqid(),
-            email: 'arnab.sadhya@gmail.com'
+            email
         }).then(response => {
             console.info('Chapter Created Successfully', response);
             syncCurrentChapters(newChapterData.courseId);
@@ -464,7 +469,7 @@ const updateChapter = () => {
                 "contentTitle": newContentData.title,
                 "contentId": uniqid(),
                 "chapterId": selectedChapter.chapterId,
-                "contentType":newContentData.type ,
+                "contentType":newContentData.type ?  newContentData.type : "textcontent",
                 "content": newContentData.content,
                 "contentOrder":newContentData.order
             }).then(response => {
@@ -512,7 +517,7 @@ const updateChapter = () => {
             "contentId": newContentData.contentId,
             "contentTitle": newContentData.title,
             "chapterId": newContentData.chapterId,
-            "contentType": newContentData.type,
+            "contentType": newContentData.type ? newContentData.type : 'textcontent',
             "content": newContentData.content,
             "contentOrder":newContentData.order
         }).then(response => {
