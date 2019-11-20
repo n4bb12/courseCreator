@@ -5,7 +5,7 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useEffect } from 'react';
-import { Tabs, Tab, Col, Row, Button, Card } from 'react-bootstrap';
+import { Tabs, Tab, Col, Row, Button, Card, Modal, Alert } from 'react-bootstrap';
 import Axios from 'axios';
 import axiosInstance from '../api';
 
@@ -17,6 +17,11 @@ const Dashboard = () => {
         e.target.value = '';
     };
 
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+  
   
     const baseurl = `http://localhost:8000/course/files/`
 
@@ -32,7 +37,13 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        fetchAllFiles();
+        if(localStorage.getItem('loggedUser')){
+            fetchAllFiles();
+        }
+        else{
+            handleShow(true);
+        }
+
     }, []);
 
     const uploadFilesLocal = (e) => {
@@ -96,6 +107,23 @@ const Dashboard = () => {
 
     return (
         <Row style={{ backgroundColor: 'white', margin: '50px', height: '100%', padding: "40px" }}>
+
+        <Modal show={show} onHide={handleClose}>
+        <Modal.Header>
+          <Modal.Title>Profile Dashboard</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div>
+            {!localStorage.getItem('loggedUser') &&  <Alert variant="danger">
+            Please login to access your dashboard
+            </Alert> }
+          </div>
+          </Modal.Body>
+        <Modal.Footer>
+          {!localStorage.getItem('loggedUser') && <googleAuth/>}
+        </Modal.Footer>
+      </Modal>    
+
             <Col sm={12}>
                 <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example">
                     <Tab eventKey="home" title="Student">

@@ -502,7 +502,7 @@ const updateChapter = () => {
     return (
         <Row style={{ margin: '30px' }}>
   <Modal show={show} onHide={handleCloseFirstModal}>
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Create Course</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -513,7 +513,7 @@ const updateChapter = () => {
           </div>
           </Modal.Body>
         <Modal.Footer>
-          {!localStorage.getItem('loggedUser') && <Button variant="secondary" onClick={handleCloseFirstModal}>
+          {localStorage.getItem('loggedUser') && <Button variant="secondary" onClick={handleCloseFirstModal}>
             Close
           </Button>}
           {!localStorage.getItem('loggedUser') && <googleAuth/>}

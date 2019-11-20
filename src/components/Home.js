@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Carousel } from 'react-bootstrap';
 import CarouselImg1 from '../assets/black-and-white-blog-business-coffee-261579.jpg';
 import CarouselImg2 from '../assets/business-college-composition-desk-419635.jpg';
@@ -52,12 +53,12 @@ const Home = () => {
   <div className="col-lg-4">
     <h2>Learn</h2>
     <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
-    <p><a className="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+    <p><Link className="btn btn-secondary" to="/enroll">View Details</Link></p>
   </div>
   <div className="col-lg-4">
     <h2>Create</h2>
     <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh.</p>
-    <p><a className="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+    <p><Link className="btn btn-secondary" to="/admin">View Details</Link></p>
   </div>
   <div className="col-lg-4">
     <h2>Share</h2>

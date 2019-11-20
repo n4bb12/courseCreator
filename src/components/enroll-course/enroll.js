@@ -55,6 +55,7 @@ const Enroll = () => {
     };
 
     useEffect(() => {
+      
       axiosInstance.get('/course/', {
           params: {
               view: 'public'
@@ -62,9 +63,13 @@ const Enroll = () => {
       }).then(response => {
           setcreatedCourseArr(response.data.response);
           console.log(createdCourseArr);
+          
+          if(localStorage.getItem('loggedUser')){
+
           setTimeout(function(){
             getEnrolledCourses(response.data.response);
           },1000);
+        }
          
       });
    }, []);
@@ -104,9 +109,6 @@ const Enroll = () => {
           </div>
           </Modal.Body>
         <Modal.Footer>
-          {!localStorage.getItem('loggedUser') && <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>}
           {localStorage.getItem('loggedUser') && <Button variant="success" onClick={purchaseCourse}>
             Enroll
           </Button>}
@@ -134,7 +136,7 @@ const Enroll = () => {
             <div className="card mb-4 shadow-sm">
               <div className="card-body">
                 <h4>{val.courseName}</h4>   
-                <p className="card-text">{val.courseDesc}</p>
+                <p className="card-text" dangerouslySetInnerHTML ={{__html: val.courseDesc}} />
                 <p className="card-text">{val.price}</p>
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="btn-group">
