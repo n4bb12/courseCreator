@@ -150,7 +150,7 @@ class CourseView extends React.Component {
                                 }
 
                                     {viewedContent.type === 'filecontent' && viewedContent.fileType.indexOf('application') > -1 &&
-                                    <div><a onClick={()=> this.downloadFile(viewedContent.fileUrl)}>Click here to download the content</a></div>
+                                    <div><a onClick={()=> this.downloadFile(viewedContent.fileUrl)}>Click here to view the media content</a></div>
                                 }
                                    {viewedContent.type === 'filecontent' && viewedContent.fileType.indexOf('image') > -1 &&
                                     <img alt ="no image" style={{width: "100%", height: "100%"}} src={viewedContent.fileUrl} />

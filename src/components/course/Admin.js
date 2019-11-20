@@ -474,7 +474,7 @@ const updateChapter = () => {
                 "contentOrder":newContentData.order
             }).then(response => {
                 // console.log('created content', response);
-                getContentData(selectedChapter.chapterId);
+                //getContentData(selectedChapter.chapterId);
                 const {contentId} = response.data.response;
                 // console.log(`content id is ${  contentId}`);
                 // if there is file associated with it then upload the  file in chunks
@@ -504,6 +504,7 @@ const updateChapter = () => {
              
              setContentArr(response.data.response);
              setModalShow(false);
+             getContentData(selectedChapter.chapterId);
 
             }).catch(error => {
                 console.warn(error);
@@ -694,7 +695,7 @@ const updateChapter = () => {
                             <input type="file" onChange={handleFileUpload} /> </Form.Group> : ''}
 
                     </Form>
-                    <a onClick={() => downloadFile(loadedMediaContent.filename)}>Click to open existing content</a>
+                    {loadedMediaContent !=='' && <a onClick={() => downloadFile(loadedMediaContent.filename)}>Click to open existing content</a> }
                 </Modal.Body>
                 <Modal.Footer>
                     {contentCreateUpdateFlag.create === true ? <Button onClick={createContent}>Create</Button> : ''}
