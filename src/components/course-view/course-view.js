@@ -56,6 +56,7 @@ class CourseView extends React.Component {
             this.setState({ viewedContent: { type: param.contentType, fileUrl: baseUrl + response.data[0].filename, fileType: response.data[0].contentType } });
         });
     }
+    
 
     showContent(param) {  
         if (param.contentType.toLowerCase().trim() === 'textcontent')
