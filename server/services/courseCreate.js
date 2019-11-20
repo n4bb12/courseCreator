@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const CourseModel = require('../models/courseSchema');
 const ChapterModel = require('../models/chapterSchema');
 const ContentModel = require('../models/contentSchema');

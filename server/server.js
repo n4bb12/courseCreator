@@ -2,17 +2,13 @@
  * Module dependencies.
  */
 const express = require('express');
-const session = require('express-session');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const chalk = require('chalk');
-//const errorHandler = require('errorhandler');
 const dotenv = require('dotenv');
 // mongodb session store for connect and express
-//const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
 const path = require('path');
-const expressStatusMonitor = require('express-status-monitor');
 
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
@@ -53,9 +49,8 @@ mongoose.connection.on('error', (err) => {
 /**
  * Express configuration.
  */
-app.set('host', process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0');
-app.set('port', process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8000);
-app.use(expressStatusMonitor());
+app.set('host', process.env.host || '0.0.0.0');
+app.set('port', process.env.PORT  || 8000);
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
