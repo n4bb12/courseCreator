@@ -10,10 +10,10 @@ const Header = () => {
       <Navbar bg="dark" variant="dark">
         <Navbar.Brand><Link to="/">Enhance your course</Link></Navbar.Brand>
         <Nav>
-          <Nav.Link><Link to="/">Home</Link></Nav.Link>
-          <Nav.Link><Link to="/enroll">Enroll</Link></Nav.Link>
-          <Nav.Link><Link to="/admin">Admin</Link></Nav.Link>
-          <Nav.Link><Link to="/dashboard">Profile Dashboard</Link></Nav.Link>
+          <Link to="/">Home</Link>
+          <Link to="/enroll">Enroll</Link>
+          <Link to="/admin">Admin</Link>
+          <Link to="/dashboard">Profile Dashboard</Link>
         </Nav>
         <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>

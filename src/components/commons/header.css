@@ -5,3 +5,10 @@
 .navbar-dark .navbar-nav .nav-link a{
     color: #efefef;
 }
+
+.navbar-expand .navbar-nav a {
+    padding-right: .5rem;
+    padding-left: .5rem;
+    color: #a2a2a2;
+}
+

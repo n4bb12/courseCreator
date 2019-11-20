@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-undef */
 /* eslint-disable no-debugger */
@@ -10,6 +11,7 @@ import Axios from 'axios';
 import { useHistory } from "react-router-dom";
 import axiosInstance from '../api';
 import './Admin.css';
+import CKEditor from 'ckeditor4-react';
 import googleAuth from './googleAuth';
 
 const uniqid = require('uniqid');
@@ -17,7 +19,7 @@ const uniqid = require('uniqid');
 // import courseCommonModal from './commons/modal';
 
 const Admin = () => {
-    let history = useHistory();
+    const history = useHistory();
     const courseDataArr = [{
         name: 'Course Name',
         id: 'courseName',
@@ -48,7 +50,7 @@ const Admin = () => {
         placeholder: 'Enter Course Price',
         type: 'text',
         value: '',
-        maxlength: 255
+        maxlength: 8
     },
     {
         name: 'Duration',
@@ -56,17 +58,18 @@ const Admin = () => {
         placeholder: 'Enter Duration of the Course',
         type: 'text',
         value: '',
-        maxlength: 255
+        maxlength: 5
     }
     ];
 
     const [courseFormArr, setCourseFormArr] = useState(courseDataArr);
+    const [enabledAddButtonCourse, setEnabledAddButtonCourse] = useState(false);
     const [createdCourseArr, setcreatedCourseArr] = useState([]);
-    const [viewFlag, setViewFlag] = useState({ create: false, view: true, courseView: false });
+    const [viewFlag, setViewFlag] = useState({ create: false, view: true, courseView: false , update: false });
+    const [validationError, setValidationError ] = useState({flag: false , text: ''});
     const [selectedCourseObj, setCourseObj] = useState({});
     const [chapterArr, setChapterArr] = useState([]);
     const [contentArr, setContentArr] = useState([]);
-    
     const [modalShow, setModalShow] = useState(false);
 
     const [showChapterModal, setChapterModal] = useState(false);
@@ -112,15 +115,25 @@ const Admin = () => {
         const { email } = JSON.parse(localStorage.getItem('loggedUser'));
         axiosInstance.get('/course/', {
             params: {
-                email
+                email,
+                view: 'admin'
             }
         }).then(courseresponse => {
+            console.log('fetched updated course successfully', courseresponse);
             setcreatedCourseArr(courseresponse.data.response);
         });
     };
 
+
     const submitCourse = () => {
         console.log(courseFormArr);
+
+        if(courseFormArr.some( el => el.value === ''))
+        {
+            alert('Please fill all the fields');
+            return;
+        }
+
         axiosInstance.post('/course/create', {
             "courseId": uniqid(),
             "email": "arnab.sadhya@gmail.com",
@@ -152,32 +165,83 @@ const Admin = () => {
         });
     };
 
-    const handleInputChange = (e, index) => {
+    const handleInputChange = (e, index , id = '') => {
         const newArr = [...courseFormArr];
-        newArr[index].value = e.target.value;
+        if(id === 'courseDesc'){
+            newArr[index].value = e.editor.getData();
+        }
+        else{
+            newArr[index].value = e.target.value;
+        }
+
         setCourseFormArr(newArr);
     };
 
+    const handleBlur = (e,index) =>  {
+
+        console.log(e.target.id);
+        console.log(`value${  e.target.value}`);
+        const {id} = e.target;
+        let num;
+        let cleanNum;
+        const newArr = [...courseFormArr];
+        if(id === 'courseDuration'){
+            const currentInputValue = parseInt(e.target.value);
+
+            if(isNaN(currentInputValue)){
+                console.warn('please enter numeric value');
+                setValidationError({flag: true, text: 'Please enter numeric value,it will be rounded to 1' });
+                newArr[index].value = '';
+                setCourseFormArr(newArr);
+                return;
+            }
+                setValidationError({flag: false, text: '' });
+                num = parseFloat(e.target.value);
+                cleanNum = num.toFixed(1);
+                newArr[index].value = cleanNum;
+                
+        }
+        else if( id === 'coursePrice'){
+            const currentInputValue = parseInt(e.target.value);
+            if(isNaN(currentInputValue)){
+                console.warn('please enter numeric value');
+                setValidationError({flag: true, text: 'Please enter numeric value,it will be rounded to 2' });
+                newArr[index].value = '';
+                setCourseFormArr(newArr);
+                return;
+            } 
+            
+                num = parseFloat(e.target.value);
+                cleanNum = num.toFixed(2);
+                setValidationError({flag: false, text: '' });
+                newArr[index].value = cleanNum;
+
+        }
+        setCourseFormArr(newArr);
+      };
+
     const selectView = (param) => {
         if (param === 'create') {
-            setViewFlag({ create: true, view: false });
+            const tempArr = [...courseFormArr];
+            tempArr.forEach(val => {
+                val.value = '';
+            });
+            setViewFlag({ create: true, view: false , update: false});
         }
         else if (param === 'view') {
-            setViewFlag({ create: false, view: true });
+            setViewFlag({ create: false, view: true, update: false });
         }
     };
 
     const editCourse = (selectedCourse) => {
         console.log(selectedCourse);
         const tempArr = [...courseFormArr];
-        debugger;
         tempArr.forEach(val => {
             if (val.id in selectedCourse) {
                 val.value = selectedCourse[val.id];
             }
         });
-        console.log(tempArr);
-        setViewFlag({ create: true, view: false });
+        setViewFlag({ create: true, view: false , update: true });
     };
 
 
@@ -185,7 +249,7 @@ const Admin = () => {
         console.log(param);
         setViewFlag({ create: false, view: false, courseView: true });
         setCourseObj(param);
-        axiosInstance.post('/course/fetchchapters', {
+        axiosInstance.post('/chapter/fetchchapters', {
             email: 'arnab.sadhya@gmail.com',
             courseId: param.courseId
         }).then(response => {
@@ -224,7 +288,7 @@ const editChapterOpenModal = (chapterObj) => {
 
 const syncCurrentChapters = (passedCourseId) => {
 
-    axiosInstance.post('/course/fetchchapters', {
+    axiosInstance.post('/chapter/fetchchapters', {
         email: 'arnab.sadhya@gmail.com',
         courseId: passedCourseId
     }).then(chapRes => {
@@ -235,7 +299,7 @@ const syncCurrentChapters = (passedCourseId) => {
 };
 
 const updateChapter = () => {
-    axiosInstance.put('/course/updatechapter', {
+    axiosInstance.put('/chapter/updatechapter', {
         chapterId: newChapterData.chapterId,
         courseId: newChapterData.courseId,
         chapterTitle: newChapterData.title,
@@ -248,7 +312,7 @@ const updateChapter = () => {
 };
 
     const saveChapter = () => {
-        axiosInstance.post('/course/addchapter', {
+        axiosInstance.post('/chapter/addchapter', {
             courseId: newChapterData.courseId,
             chapterTitle: newChapterData.title,
             chapterOrder: newChapterData.order,
@@ -289,7 +353,7 @@ const updateChapter = () => {
             setNewContentData({...newContentData, order: event.target.value, chapterId: newContentData.chapterId });
         }
         if(source === 'addcontenttext'){
-            setNewContentData({...newContentData, content: event.target.value, chapterId: newContentData.chapterId });
+            setNewContentData({...newContentData, content: event.editor.getData(), chapterId: newContentData.chapterId });
         }
         console.log(event);
         console.log(newChapterData);
@@ -299,22 +363,29 @@ const updateChapter = () => {
         console.log(data);
         setModalShow(true);
         setChapter(data);
-        setNewContentData({title: '', order: '' , content: ''})
+        setNewContentData({title: '', order: '' , content: ''});
+    };
+
+    const getAllMediaContent = (contentId) => {
+        axiosInstance.post('/course/getallmediacontent', {
+            contentId
+        }).then(response => {
+            console.log('video files', response.data[0]);
+        });
     };
 
     const editContentOpenModal = (editedContent) => {
         console.log(editedContent);
+        const {contentType} = editedContent;
 
+        if(contentType === 'text'){
+            setTextFileContentFlag({textcontent: true, filecontent: false});
 
+        }
+        else{
+            setTextFileContentFlag({textcontent: false, filecontent: true});
 
-        ClassicEditor
-        .create( document.querySelector( '#editor' ) )
-        .then( editor => {
-            console.log( editor );
-        } )
-        .catch( error => {
-            console.error( error );
-        } );
+        }
 
 
         setModalShow(true);
@@ -325,6 +396,7 @@ const updateChapter = () => {
        existingContentData.content = editedContent.content;
        existingContentData.contentId =editedContent.contentId;
        existingContentData.chapterId = editedContent.chapterId;
+       getAllMediaContent(existingContentData.contentId);
        setNewContentData(existingContentData);
     };
 
@@ -350,6 +422,8 @@ const updateChapter = () => {
                 console.log('created content', response);
                 setModalShow(false);
                 getContentData(selectedChapter.chapterId);
+                const {contentId} = response.data.response;
+                console.log(`content id is ${  contentId}`);
                 // if there is file associated with it then upload the  file in chunks
              if(newContentData.type === 'filecontent'){
                 const formData = new FormData();
@@ -361,10 +435,10 @@ const updateChapter = () => {
                 for (const key of formData.entries()) {
                     console.log(key);
                 }
-                Axios({
+              Axios({
                     url: 'http://localhost:8000/course/upload',
                     method: 'POST',
-                    params: { contentId: response.data.response.contentId},
+                    params: { contentId},
                     data: formData,
                     headers: {
                       Accept: 'application/json',
@@ -372,10 +446,10 @@ const updateChapter = () => {
                     }
                   }).then(fileUploadResponse => {
                       console.log(fileUploadResponse);
-                  });
+                  }); 
              } 
  
-
+             setContentArr(response.data.response);
             });
 
 
@@ -406,6 +480,8 @@ const updateChapter = () => {
         }
     };
 
+
+   
 
     const selectChapterForContent = (event) => {
         const newChapter = event.target.value;
@@ -487,9 +563,14 @@ const updateChapter = () => {
                     <Form>
                         <Form.Group controlId="formBasicEmail">
                             <Form.Label>Content Title</Form.Label>
-                            <Form.Control type="text" placeholder="Content Title"
+                            <Form.Control type="text" 
+                            placeholder="Content Title"
                             value ={newContentData.title} 
+                            maxLength ="255"
                             onChange= {(event) => handleContentInput(event, 'addcontenttile')}/>
+                             <Form.Text className="text-muted">
+                                       Total length remaining {255 - newContentData.title.length}
+                                    </Form.Text>
                         </Form.Group>
 
                         {contentCreateUpdateFlag.update === true &&
@@ -504,7 +585,7 @@ const updateChapter = () => {
                         }
                             <Form.Group controlId="formBasicEmail">
                             <Form.Label>Content Order</Form.Label>
-                            <Form.Control type="text" placeholder="Content Title"
+                            <Form.Control type="text" placeholder="Content Order"
                             value ={newContentData.order} 
                             onChange= {(event) => handleContentInput(event, 'addcontentorder')}/>
                         </Form.Group>
@@ -537,15 +618,14 @@ const updateChapter = () => {
                         </fieldset>
 
                         { textFileContentFlag.textcontent === true ? <Form.Group controlId="exampleForm.ControlTextarea1">
-                            <Form.Label>Example textarea</Form.Label>
+                            <Form.Label>Content</Form.Label>
 
-                            <textarea name="content" id="editor">
-    &lt;p&gt;Here goes the initial content of the editor.&lt;/p&gt;
-</textarea>
-                           <Form.Control as="textarea" rows="3" 
+                      {/*      <Form.Control as="textarea" rows="3" 
                             value ={newContentData.content} 
                             id="contentTextArea"
-                            onChange= {(event) => handleContentInput(event,'addcontenttext')} />
+                            onChange= {(event) => handleContentInput(event,'addcontenttext')} /> */}
+
+                            <CKEditor data={newContentData.content}  onChange= {(event) => handleContentInput(event,'addcontenttext')}/>
                         </Form.Group> : ''}
                         { textFileContentFlag.filecontent === true ? <Form.Group> <Form.Label>Upload file </Form.Label>
                             <input type="file" onChange={handleFileUpload} /> </Form.Group> : ''}
@@ -575,16 +655,16 @@ const updateChapter = () => {
                     </Alert>
                     </div>
                     }
-                        {viewFlag.view && createdCourseArr.map(val => (
-                            <Col sm={5}>
+                        {viewFlag.view && createdCourseArr.map((val) => (
+                            <Col sm={5} key={val.courseName}>
                                 <Card>
                                     <Card.Body>
                                         <Card.Title>{val.courseName}</Card.Title>
                                         <Card.Title>Status: {val.status}</Card.Title>
-                                        <Card.Text>
-                                            {val.courseDesc}
+                                        <Card.Text dangerouslySetInnerHTML ={{__html: val.courseDesc}}>
+                                           
                                         </Card.Text>
-                                        <Card.Text>Price: {val.coursePrice}</Card.Text>
+                                        <Card.Text>Price: ${val.coursePrice}</Card.Text>
                                         <Button variant="primary" style={{ marginRight: '10px' }} onClick={() => selectCourse(val)}>Select Course</Button>
                                         <Button variant="success" onClick={() => {
                                                 history.push(`/view-course?id=${val.courseId}`);
@@ -598,7 +678,7 @@ const updateChapter = () => {
                         <Col sm={12} id="chapters">
                             <div className="selectedChapterSection">
                             <p>Name : {selectedCourseObj.courseName}</p>
-                            <p>Price : {selectedCourseObj.coursePrice}</p>
+                            <p>Price : ${selectedCourseObj.coursePrice}</p>
                             <Button variant="primary" onClick={() =>  {
                                 setChapterCreateUpdateFlag({create: true, update: false});
                                 setChapterModal(true);
@@ -608,7 +688,7 @@ const updateChapter = () => {
 
                                 {chapterArr.map((val,index) => (
 
-                                        <Card>
+                                        <Card key={val.chapterId}>
                                             <Card.Header>
                                             <Accordion.Toggle as={Button} variant="link" eventKey={index} onClick={() => getContentData(val)}>
                                             {val.chapterTitle}
@@ -627,8 +707,7 @@ const updateChapter = () => {
                                                     }>Edit Content</Button>
                                                     <p>{contentRes.contentTitle}</p>
                                                     <p>{contentRes.content}</p>
-                                                    <div id="mediaContent">                                       
-                                                    </div> 
+                                                    <div id="mediaContent" /> 
                                                  </div>   
                                             ))}
                                             <Button variant="info" onClick={() => {
@@ -652,18 +731,30 @@ const updateChapter = () => {
                             {courseFormArr.map((val, index) => (
                                 <Form.Group key={val.id} controlId={val.id}>
                                     <Form.Label>{val.name}</Form.Label>
-                                    <Form.Control maxLength ={val.maxlength} type="text" placeholder={val.placeholder} value={val.value} onChange={() => handleInputChange(event, index)} />
+                                    {val.id !== 'courseDesc' && <Form.Control required maxLength ={val.maxlength} type="text" placeholder={val.placeholder} value={val.value} 
+                                    onChange={() => handleInputChange(event, index)} 
+                                    onBlur={(event) => handleBlur(event, index)}
+                                     /> }
+
+                                    {val.id === 'courseDesc' &&     <CKEditor data={val.value}   onChange={(event) => handleInputChange(event, index, val.id)} />}
                                     
                                     {(val.id === 'courseName' || val.id === 'courseSubtitle') && <Form.Text className="text-muted">
                                        Total length remaining {val.maxlength - val.value.length}
                                     </Form.Text>
                                     }
+
+                                    {(val.id === 'coursePrice' || val.id === 'courseDuration') && validationError.flag && <Form.Text className="text-muted">
+                                       {validationError.text}
+                                    </Form.Text>
+                                    }
+
                                 </Form.Group>
                             ))
                             }
                             {/*    <ButtonComp text="Add Course" handleOnSubmit = {() => submitCourse()} />   */}
-                            <Button variant="primary" onClick={submitCourse} style={{ marginRight: '10px' }}>ADD COURSE</Button>
-                            <Button variant="info" onClick={updateCourse}>Update Course</Button>
+                            
+                           {viewFlag.update === false  && <Button variant="primary" onClick={submitCourse} style={{ marginRight: '10px' }}>ADD COURSE</Button> }
+                           {viewFlag.update === true && <Button variant="info" onClick={updateCourse}>Update Course</Button> }
                         </Form>
                     }
                 </div>

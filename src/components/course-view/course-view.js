@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable lines-between-class-members */
 /* eslint-disable jsx-a11y/media-has-caption */
@@ -21,11 +23,12 @@ class CourseView extends React.Component {
             chapterArr: [], 
             contentArr: [], 
             chapterIndex: 0, 
-            viewedContent: { type: null, content: null, fileUrl: null }
+            viewedContent: { type: null, content: null, fileUrl: null, fileType: null }
         };
         this.getContentData = this.getContentData.bind(this);
         this.showContent = this.showContent.bind(this);
         this.getAllMediaContent = this.getAllMediaContent.bind(this);
+        this.downloadFile = this.downloadFile.bind(this);
     }
 
     componentDidMount() {
@@ -49,7 +52,7 @@ class CourseView extends React.Component {
         }).then(response => {
             console.log('video files', response.data[0]);
             const { baseUrl } = this.state;
-            this.setState({ viewedContent: { type: param.contentType, fileUrl: baseUrl + response.data[0].filename } });
+            this.setState({ viewedContent: { type: param.contentType, fileUrl: baseUrl + response.data[0].filename, fileType: response.data[0].contentType } });
         });
     }
 
@@ -73,6 +76,10 @@ class CourseView extends React.Component {
             this.setState({ chapterArr: response.data.response });
         });
 
+    }
+
+    downloadFile(url){
+        window.open(url);
     }
 
 
@@ -135,14 +142,26 @@ class CourseView extends React.Component {
                         <Col sm={9}>
                             <div style={{ backgroundColor: "white", width: "100%", height: "100%", padding: "20px" }}>
                                 {viewedContent.type === 'text' &&
-                                    <p>{viewedContent.content}</p>
+                                   <div dangerouslySetInnerHTML ={{__html: viewedContent.content}} />
                                 }
-                                {viewedContent.type === 'filecontent' &&
+                                {viewedContent.type === 'filecontent' && viewedContent.fileType.indexOf('video') > -1 &&
                                     <video key={viewedContent.fileUrl} width="100%" height="100%" controls>
                                         <source src={viewedContent.fileUrl} type="video/mp4" />
                                         Your browser does not support the video tag.
                                     </video>
                                 }
+
+                                    {viewedContent.type === 'filecontent' && viewedContent.fileType.indexOf('application') > -1 &&
+                                    <div><a onClick={()=> this.downloadFile(viewedContent.fileUrl)}>Click here to download the content</a></div>
+                                }
+                                   {viewedContent.type === 'filecontent' && viewedContent.fileType.indexOf('image') > -1 &&
+                                    <img alt ="no image" style={{width: "100%", height: "100%"}} src={viewedContent.fileUrl} />
+                                }
+                                {viewedContent.type === 'filecontent' && viewedContent.fileType && <audio controls>
+                                <source src={viewedContent.fileUrl} type="audio/mpeg" />
+                                Your browser does not support the audio element.
+                                </audio>}
+                                
                             </div>
                         </Col>
                     </Row>

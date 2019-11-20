@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
-const express = require('express');
 
+const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -81,9 +81,15 @@ router.post('/addchapter', (req, res) => {
 router.put('/updatechapter', (req, res) => {
     courseService.updateChapter(req, res);
 });
+//end chapter
 
+//content start
 router.post('/addContent', (req, res) => {
     courseService.addContent(req, res);
+});
+
+router.post('/getcontent', (req, res) => {
+  courseService.getContent(req, res);
 });
 
 router.put('/updatecontent', (req, res) => {
@@ -116,10 +122,6 @@ router.get('/files/:filename', (req, res) => {
     const readstream = GFS.createReadStream(req.params.filename);
     readstream.pipe(res);
   });
-});
-
-router.post('/getcontent', (req, res) => {
-  courseService.getContent(req, res);
 });
 
 

@@ -21,6 +21,10 @@ dotenv.config({ path: '.env.example' });
 
 
 const courseController = require('./controllers/course');
+const chapterController = require('./controllers/chapter.controller');
+const contentController = require('./controllers/content.controller');
+const enrollController = require('./controllers/enroll.controller');
+
 
 /**
  * API keys and configuration.
@@ -96,6 +100,10 @@ app.use('/', express.static(path.join(__dirname, 'public'), { maxAge: 3155760000
 });
 
 app.use('/course', courseController);
+app.use('/chapter', chapterController);
+app.use('/content', contentController);
+app.use('/enroll', enrollController);
+
 
 /**
  * Error Handler.

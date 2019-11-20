@@ -17,7 +17,8 @@ courseObject.courseCreate = async (req, res) => {
             courseSubtitle: req.body.courseSubtitle,
             courseDesc: req.body.courseDesc,
             coursePrice: req.body.coursePrice,
-            courseDuration: req.body.courseDuration  
+            courseDuration: req.body.courseDuration,
+            status: req.body.status  
         });
     
         const response = await course.save();
@@ -130,7 +131,7 @@ courseObject.fetchCourses = async(req, res) => {
         });
        }
        else if(req.query.view === 'public'){
-        CourseModel.find({}, (error, response) => {
+        CourseModel.find({ status: 'published'}, (error, response) => {
             if(error) res.send({status: 500, error});
             res.send({status: 200, response});
         });

@@ -24,11 +24,10 @@ const Enroll = () => {
     const getEnrolledCourses = () =>{
       const { email } =  JSON.parse(localStorage.getItem('loggedUser'));
 
-      axiosInstance.post('/course/fetchenrollcourses', {
+      axiosInstance.post('/enroll/fetchenrollcourses', {
         email
       }).then(response => {
         console.log('enrolled courses', response.data);
-        debugger;
         createdCourseArr.forEach(course => {
           response.data.response.forEach( enrolled => {
             if(course.courseId.toLowerCase() === enrolled.courseId.toLowerCase()) {
@@ -56,7 +55,7 @@ const Enroll = () => {
 
     const purchaseCourse = () => {
       const { name, email } =  JSON.parse(localStorage.getItem('loggedUser'));
-      axiosInstance.post('/course/enrollcourse', {
+      axiosInstance.post('/enroll/enrollcourse', {
           courseId: courseObj.courseId,
           email,
           name,
@@ -109,7 +108,7 @@ const Enroll = () => {
       
             <div className="row">
              {createdCourseArr.map( val => (
-            <div className="col-md-4">
+            <div className="col-md-4" key={val.courseName}>
             <div className="card mb-4 shadow-sm">
               <div className="card-body">
                 <h4>{val.courseName}</h4>   

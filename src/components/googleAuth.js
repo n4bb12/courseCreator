@@ -5,7 +5,11 @@ import {signIn, signOut} from '../actions';
 
 class GoogleAuth extends React.Component {
 
-    state = {isSignedIn: null, loggedUserObj: { name: 'NA', email: 'NA'}};
+
+    constructor(props){
+        super(props);
+        this.state = {isSignedIn: null, loggedUserObj: { name: 'NA', email: 'NA'}};
+    }
 
     componentDidMount(){
         window.gapi.load('client:auth2', () => {
@@ -35,7 +39,6 @@ class GoogleAuth extends React.Component {
         // this.setState({isSignedIn: this.auth.isSignedIn.get()});
         if(isSignedIn){
             this.props.signIn(this.auth.currentUser.get().getId());
-            console.log(this.auth.currentUser.Ab.w3);
             this.setState({loggedUserObj: {name: this.auth.currentUser.Ab.w3.ig, email:this.auth.currentUser.Ab.w3.U3}});
             localStorage.setItem('loggedUser', JSON.stringify(this.state.loggedUserObj));
         }
