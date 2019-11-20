@@ -2,9 +2,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Carousel } from 'react-bootstrap';
-import CarouselImg1 from '../../assets/black-and-white-blog-business-coffee-261579.jpg';
+import CarouselImg3 from '../../assets/black-and-white-blog-business-coffee-261579.jpg';
 import CarouselImg2 from '../../assets/business-college-composition-desk-419635.jpg';
-import CarouselImg3 from '../../assets/book-chapter-six-5834.jpg';
+import CarouselImg1 from '../../assets/book-chapter-six-5834.jpg';
 import './Home.css';
 
 const Home = () => {
@@ -73,24 +73,6 @@ const Home = () => {
   </div>
   <div className="col-md-5" />
 </div>
-<hr className="featurette-divider" />
-<div className="row featurette">
-  <div className="col-md-7 order-md-2">
-    <h2 className="featurette-heading">Oh yeah, it’s that good. <span className="text-muted">See for yourself.</span></h2>
-    <p className="lead">Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur. Fusce dapibus, tellus ac cursus commodo.</p>
-  </div>
-  <div className="col-md-5 order-md-1" />
-</div>
-
-<hr className="featurette-divider" />
-<div className="row featurette">
-  <div className="col-md-7">
-    <h2 className="featurette-heading">And lastly, this one. <span className="text-muted">Checkmate.</span></h2>
-    <p className="lead">Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur. Fusce dapibus, tellus ac cursus commodo.</p>
-  </div>
-  <div className="col-md-5" />
-</div>
-<hr className="featurette-divider" />
 </div>
 </>
 );

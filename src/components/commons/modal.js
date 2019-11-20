@@ -1,26 +1,25 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Alert } from 'react-bootstrap';
 
 const courseCommonModal = (props) => {
-    const { onHide} = props;
+    const { text, show , handleCloseFirstModal} = props;
     return (
       <Modal show={show} onHide={handleCloseFirstModal}>
       <Modal.Header>
-        <Modal.Title>Create Course</Modal.Title>
+        <Modal.Title>Title goes here...</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div>
-          {!localStorage.getItem('loggedUser') &&  <Alert variant="danger">
-          Please login to create a course
-          </Alert> }
+          <Alert variant="danger">
+           {text}
+          </Alert> 
         </div>
         </Modal.Body>
       <Modal.Footer>
-        {localStorage.getItem('loggedUser') && <Button variant="secondary" onClick={handleCloseFirstModal}>
+        <Button variant="secondary" onClick={handleCloseFirstModal}>
           Close
-        </Button>}
-        {!localStorage.getItem('loggedUser') && <googleAuth/>}
+          </Button>
       </Modal.Footer>
     </Modal>    
 

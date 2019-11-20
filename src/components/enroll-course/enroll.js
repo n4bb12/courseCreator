@@ -18,8 +18,6 @@ const Enroll = () => {
 
     const [createdCourseArr, setcreatedCourseArr] = useState([]);
     const [courseObj , setCourseObj ] = useState({});
-    const [loggedInFlag ,setLoggedInFlag] = useState(false);
-
     const enrollCourse =(obj) => {
         setCourseObj(obj);
         handleShow();

@@ -9,9 +9,9 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Col, ListGroup, Row, Modal, Alert, Accordion } from 'react-bootstrap';
 import Axios from 'axios';
 import { useHistory } from "react-router-dom";
+import CKEditor from 'ckeditor4-react';
 import axiosInstance from '../../api';
 import './Admin.css';
-import CKEditor from 'ckeditor4-react';
 import googleAuth from '../googleAuth';
 
 const uniqid = require('uniqid');

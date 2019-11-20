@@ -11,19 +11,22 @@ import axiosInstance from '../../api';
 
 const Dashboard = () => {
 
-    const [uploadedFiles, setUploadedFiles] = useState([]);
-    const [storedVideoFiles, setStoredVideoFiles] = useState([]);
     const onInputClick = (e) => {
         e.target.value = '';
     };
+    
+    const baseurl = `http://localhost:8000/course/files/`;
 
+    // all state declaration goes here
+    const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [storedVideoFiles, setStoredVideoFiles] = useState([]);
     const [show, setShow] = useState(false);
 
+    // modal hide and show
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
   
   
-    const baseurl = `/course/files/`;
 
     const fetchAllFiles = () =>{
         const { email } = JSON.parse(localStorage.getItem('loggedUser'));
@@ -123,7 +126,7 @@ const Dashboard = () => {
 
                         <Row>
                             <Col sm={9}>
-                                <span>Attachments</span>
+                            <h3>Current Library</h3>  
                             </Col>
                             <Col sm={3}>
                                 <a className="addFileLink">
@@ -151,7 +154,6 @@ const Dashboard = () => {
                             ))}
                         </Row>
                         <Row>
-                        <Col sm={12}><h3>Current Library</h3></Col>    
                         {
                         storedVideoFiles.length > 0 && storedVideoFiles.map(val =>(
                         <Card bg="light" style={{ width: '18rem', margin: '10px' }}>
