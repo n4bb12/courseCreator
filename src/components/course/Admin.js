@@ -474,7 +474,7 @@ const updateChapter = () => {
                 "contentOrder":newContentData.order
             }).then(response => {
                 // console.log('created content', response);
-                //getContentData(selectedChapter.chapterId);
+                // getContentData(selectedChapter.chapterId);
                 const {contentId} = response.data.response;
                 // console.log(`content id is ${  contentId}`);
                 // if there is file associated with it then upload the  file in chunks
