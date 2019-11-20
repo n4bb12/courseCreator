@@ -24,7 +24,9 @@ To run only node server, use
 ```
 npm run server-start
 
+To Test Server API use : 
 
+### npm run server-api-test
 
 ### `npm test`
 
