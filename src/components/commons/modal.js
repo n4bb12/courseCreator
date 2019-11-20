@@ -5,29 +5,25 @@ import { Modal, Button } from 'react-bootstrap';
 const courseCommonModal = (props) => {
     const { onHide} = props;
     return (
-      <Modal
-        {...props}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            Modal heading
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <h4>Centered Modal</h4>
-          <p>
-            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-            dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-            consectetur ac, vestibulum at eros.
-          </p>
+      <Modal show={show} onHide={handleCloseFirstModal}>
+      <Modal.Header>
+        <Modal.Title>Create Course</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div>
+          {!localStorage.getItem('loggedUser') &&  <Alert variant="danger">
+          Please login to create a course
+          </Alert> }
+        </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={onHide}>Close</Button>
-        </Modal.Footer>
-      </Modal>
+      <Modal.Footer>
+        {localStorage.getItem('loggedUser') && <Button variant="secondary" onClick={handleCloseFirstModal}>
+          Close
+        </Button>}
+        {!localStorage.getItem('loggedUser') && <googleAuth/>}
+      </Modal.Footer>
+    </Modal>    
+
     );
   };
 

@@ -1,3 +1,6 @@
+/* eslint-disable react/no-danger */
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable class-methods-use-this */
@@ -7,10 +10,12 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-undef */
 /* eslint-disable no-restricted-globals */
+
 import React from 'react';
 import queryString from 'query-string';
-import { Card, Row, Col, Nav, Tab, Accordion, ListGroup } from 'react-bootstrap';
+import { Card, Row, Col, Tab, Accordion, ListGroup } from 'react-bootstrap';
 import axiosInstance from '../../api';
+import './course-view.css';
 
 class CourseView extends React.Component {
 
@@ -22,7 +27,6 @@ class CourseView extends React.Component {
             courseArr: [], 
             chapterArr: [], 
             contentArr: [], 
-            chapterIndex: 0, 
             viewedContent: { type: null, content: null, fileUrl: null, fileType: null }
         };
         this.getContentData = this.getContentData.bind(this);
@@ -32,8 +36,6 @@ class CourseView extends React.Component {
     }
 
     componentDidMount() {
-        //this.getAllMediaContent();
-        // const { email } = JSON.parse(localStorage.getItem('loggedUser'));
         const params = queryString.parse(location.search);
         axiosInstance.get('/course/', {
             params: {
@@ -50,15 +52,14 @@ class CourseView extends React.Component {
         axiosInstance.post('/course/getallmediacontent', {
             contentId: param.contentId
         }).then(response => {
-            console.log('video files', response.data[0]);
             const { baseUrl } = this.state;
             this.setState({ viewedContent: { type: param.contentType, fileUrl: baseUrl + response.data[0].filename, fileType: response.data[0].contentType } });
         });
     }
 
-    showContent(param) {
-        console.log(param);
-        if (param.contentType === 'text') {
+    showContent(param) {  
+        if (param.contentType.toLowerCase().trim() === 'textcontent')
+         {
             this.setState({ viewedContent: { content: param.content, type: param.contentType } });
         }
         else {
@@ -72,7 +73,6 @@ class CourseView extends React.Component {
         axiosInstance.post('/chapter/fetchchapters', {
             courseId: param
         }).then(response => {
-            console.log('chapter for courses', response);
             this.setState({ chapterArr: response.data.response });
         });
 
@@ -86,12 +86,11 @@ class CourseView extends React.Component {
     getContentData(chapter, index) {
         const { chapterArr } = this.state;
         const newChapterArr = [...chapterArr];
-        this.setState({ chapterIndex: index });
+        // this.setState({ chapterIndex: index });
         newChapterArr[index].content = [];
         axiosInstance.post('/course/getcontent', {
             chapterId: chapter.chapterId
         }).then(response => {
-            console.log(response.data.response);
             this.setState({ contentArr: response.data.response });
             const { contentArr } = this.state;
             contentArr.forEach(val2 => {
@@ -102,7 +101,6 @@ class CourseView extends React.Component {
 
             this.setState({ chapterArr: newChapterArr });
         });
-        console.log(this.state);
     };
 
 
@@ -111,8 +109,8 @@ class CourseView extends React.Component {
         return (
             <>
                 {courseArr.map(val => (
-                    <Card>
-                        <Card.Body>Course - {val.courseName}</Card.Body>
+                    <Card className="courseCard">
+                        <Card.Body>{val.courseName}</Card.Body>
                     </Card>
                 ))}
 
@@ -140,8 +138,8 @@ class CourseView extends React.Component {
                             </Accordion>
                         </Col>
                         <Col sm={9}>
-                            <div style={{ backgroundColor: "white", width: "100%", height: "100%", padding: "20px" }}>
-                                {viewedContent.type === 'text' &&
+                            <div className="contentViewSection">
+                                {viewedContent.type === 'textcontent' &&
                                    <div dangerouslySetInnerHTML ={{__html: viewedContent.content}} />
                                 }
                                 {viewedContent.type === 'filecontent' && viewedContent.fileType.indexOf('video') > -1 &&

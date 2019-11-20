@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unused-state */
+/* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
@@ -33,6 +35,7 @@ class GoogleAuth extends React.Component {
     onSignOutClick = () => {  
         localStorage.removeItem('loggedUser');
         this.auth.signOut();
+        window.location.reload();
     }
 
     onAuthChange = (isSignedIn) => {

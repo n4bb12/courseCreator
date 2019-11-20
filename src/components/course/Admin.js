@@ -9,10 +9,10 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Col, ListGroup, Row, Modal, Alert, Accordion } from 'react-bootstrap';
 import Axios from 'axios';
 import { useHistory } from "react-router-dom";
-import axiosInstance from '../api';
+import axiosInstance from '../../api';
 import './Admin.css';
 import CKEditor from 'ckeditor4-react';
-import googleAuth from './googleAuth';
+import googleAuth from '../googleAuth';
 
 const uniqid = require('uniqid');
 
@@ -45,7 +45,7 @@ const Admin = () => {
         maxlength: 255
     },
     {
-        name: 'Price',
+        name: 'Price ($)',
         id: 'coursePrice',
         placeholder: 'Enter Course Price',
         type: 'text',
@@ -53,7 +53,7 @@ const Admin = () => {
         maxlength: 8
     },
     {
-        name: 'Duration',
+        name: 'Duration (hrs)',
         id: 'courseDuration',
         placeholder: 'Enter Duration of the Course',
         type: 'text',
@@ -126,6 +126,7 @@ const Admin = () => {
 
 
     const submitCourse = () => {
+        const { email } = JSON.parse(localStorage.getItem('loggedUser'));
         console.log(courseFormArr);
 
         if(courseFormArr.some( el => el.value === ''))
@@ -136,7 +137,7 @@ const Admin = () => {
 
         axiosInstance.post('/course/create', {
             "courseId": uniqid(),
-            "email": "arnab.sadhya@gmail.com",
+            "email": email,
             "courseName": courseFormArr[0].value,
             "courseSubtitle": courseFormArr[1].value,
             "courseDesc": courseFormArr[2].value,
@@ -391,7 +392,7 @@ const updateChapter = () => {
         console.log(editedContent);
         const {contentType} = editedContent;
 
-        if(contentType === 'text'){
+        if(contentType === 'textcontent'){
             setTextFileContentFlag({textcontent: true, filecontent: false});
 
         }

@@ -8,12 +8,12 @@ const Header = () => {
   return (
     <>
       <Navbar bg="dark" variant="dark">
-        <Navbar.Brand><Link to="/">Enhance your course</Link></Navbar.Brand>
+        <Navbar.Brand><Link to="/">Education Studio</Link></Navbar.Brand>
         <Nav>
           <Link to="/">Home</Link>
           <Link to="/enroll">Enroll</Link>
           <Link to="/admin">Admin</Link>
-          <Link to="/dashboard">Profile Dashboard</Link>
+          <Link to="/dashboard">Dashboard</Link>
         </Nav>
         <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>

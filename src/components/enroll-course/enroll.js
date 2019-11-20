@@ -1,13 +1,11 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from 'react';
-import './enroll.css';
 import { useHistory } from "react-router-dom";
-
-import axiosInstance from '../../api';
-
 import { Modal, Button } from 'react-bootstrap';
+import axiosInstance from '../../api';
 import GoogleAuth from '../googleAuth';
+import './enroll.css';
 
 
 const Enroll = () => {
@@ -41,7 +39,6 @@ const Enroll = () => {
       axiosInstance.post('/enroll/fetchenrollcourses', {
         email
       }).then(response => {
-        console.log('enrolled courses', response.data);
         newCurrentData.forEach(course => {
           response.data.response.forEach( enrolled => {
             if(course.courseId.toLowerCase() === enrolled.courseId.toLowerCase()) {
@@ -49,7 +46,6 @@ const Enroll = () => {
             }
           });
         });
-        console.log(newCurrentData);
         setcreatedCourseArr(newCurrentData);
       });
     };
@@ -61,14 +57,9 @@ const Enroll = () => {
               view: 'public'
           }
       }).then(response => {
-          setcreatedCourseArr(response.data.response);
-          console.log(createdCourseArr);
-          
+          setcreatedCourseArr(response.data.response);          
           if(localStorage.getItem('loggedUser')){
-
-          setTimeout(function(){
             getEnrolledCourses(response.data.response);
-          },1000);
         }
          
       });
@@ -89,7 +80,7 @@ const Enroll = () => {
           coursePrice: courseObj.coursePrice,
           courseDuration: courseObj.courseDuration  
       }).then(response => {
-        console.log(response);
+        if(response)
         handleClose(true);
         getEnrolledCourses();
       });
@@ -141,7 +132,7 @@ const Enroll = () => {
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="btn-group">
                    {val.enrolled && <Button type="button" variant="success">Enrolled</Button> }
-                   {val.enrolled && <Button type="button" variant="info" style={{marginLeft: '5px'}} onClick={() => openCourse(val)}>Start Course</Button> }
+                   {val.enrolled && <Button type="button" variant="info" onClick={() => openCourse(val)}>Start Course</Button> }
                   {!val.enrolled && <Button type="button" variant="light" className="btn btn-sm btn-outline-secondary" onClick={() => enrollCourse(val)}>Enroll</Button> }
                   </div>
                   <small className="text-muted">{val.courseDuration}</small>

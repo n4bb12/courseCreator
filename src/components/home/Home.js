@@ -2,9 +2,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Carousel } from 'react-bootstrap';
-import CarouselImg1 from '../assets/black-and-white-blog-business-coffee-261579.jpg';
-import CarouselImg2 from '../assets/business-college-composition-desk-419635.jpg';
-import CarouselImg3 from '../assets/book-chapter-six-5834.jpg';
+import CarouselImg1 from '../../assets/black-and-white-blog-business-coffee-261579.jpg';
+import CarouselImg2 from '../../assets/business-college-composition-desk-419635.jpg';
+import CarouselImg3 from '../../assets/book-chapter-six-5834.jpg';
 import './Home.css';
 
 const Home = () => {
@@ -47,7 +47,6 @@ const Home = () => {
     </Carousel.Caption>
   </Carousel.Item>
 </Carousel>
-
 <div className="container marketing">
 <div className="row">
   <div className="col-lg-4">
