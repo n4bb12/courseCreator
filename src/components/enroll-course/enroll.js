@@ -1,11 +1,17 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from 'react';
 import './enroll.css';
+import { useHistory } from "react-router-dom";
+
 import axiosInstance from '../../api';
+
 import { Modal, Button } from 'react-bootstrap';
 import GoogleAuth from '../googleAuth';
 
+
 const Enroll = () => {
+  const history = useHistory();
 
   const [show, setShow] = useState(false);
 
@@ -21,25 +27,32 @@ const Enroll = () => {
         handleShow();
     };
 
-    const getEnrolledCourses = () =>{
+    const getEnrolledCourses = (currentData = []) =>{
+
+      let newCurrentData;
+      if(currentData.length > 0){
+       newCurrentData = [...currentData];
+      }
+      else{
+        newCurrentData = [...createdCourseArr];
+      }
       const { email } =  JSON.parse(localStorage.getItem('loggedUser'));
 
       axiosInstance.post('/enroll/fetchenrollcourses', {
         email
       }).then(response => {
         console.log('enrolled courses', response.data);
-        createdCourseArr.forEach(course => {
+        newCurrentData.forEach(course => {
           response.data.response.forEach( enrolled => {
             if(course.courseId.toLowerCase() === enrolled.courseId.toLowerCase()) {
               course.enrolled = true;
             }
-            else{
-              course.enrolled = false;
-            }
-          })
-        })
-      })
-    }
+          });
+        });
+        console.log(newCurrentData);
+        setcreatedCourseArr(newCurrentData);
+      });
+    };
 
     useEffect(() => {
       axiosInstance.get('/course/', {
@@ -48,10 +61,18 @@ const Enroll = () => {
           }
       }).then(response => {
           setcreatedCourseArr(response.data.response);
-          getEnrolledCourses();
+          console.log(createdCourseArr);
+          setTimeout(function(){
+            getEnrolledCourses(response.data.response);
+          },1000);
+         
       });
    }, []);
 
+   const openCourse = (param) => {
+     history.push(`/view-course?id=${param.courseId}`);
+                                      
+   };
 
     const purchaseCourse = () => {
       const { name, email } =  JSON.parse(localStorage.getItem('loggedUser'));
@@ -64,8 +85,9 @@ const Enroll = () => {
           courseDuration: courseObj.courseDuration  
       }).then(response => {
         console.log(response);
+        handleClose(true);
         getEnrolledCourses();
-      })
+      });
     };
 
 
@@ -116,8 +138,9 @@ const Enroll = () => {
                 <p className="card-text">{val.price}</p>
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="btn-group">
-                   {val.enrolled && <button type="button" variant="success">Enrolled</button> }
-                  {!val.enrolled && <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => enrollCourse(val)}>Enroll</button> }
+                   {val.enrolled && <Button type="button" variant="success">Enrolled</Button> }
+                   {val.enrolled && <Button type="button" variant="info" style={{marginLeft: '5px'}} onClick={() => openCourse(val)}>Start Course</Button> }
+                  {!val.enrolled && <Button type="button" variant="light" className="btn btn-sm btn-outline-secondary" onClick={() => enrollCourse(val)}>Enroll</Button> }
                   </div>
                   <small className="text-muted">{val.courseDuration}</small>
                 </div>

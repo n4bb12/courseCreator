@@ -36,7 +36,7 @@ filestorage = new GridFsStorage({
         filename: file.originalname,
         bucketName: 'fileuploads',
         metadata: {
-        parentRecordID: req.query.contentId
+        parentRecordID: req.query.contentId ? req.query.contentId : req.query.email
         }
     };
     }
@@ -66,11 +66,17 @@ router.put('/update', (req, res) => {
     courseService.courseUpdate(req, res);
 });
 
+
+router.patch('/updatestatus', (req, res) => {
+  courseService.courseStatusUpdate(req, res);
+});
+
+
 router.get('/', (req, res) => {
    courseService.fetchCourses(req, res);
 });
 
-router.post('/fetchchapters', (req, res) => {
+/* router.post('/fetchchapters', (req, res) => {
     courseService.fetchChapters(req, res);
  });
  
@@ -80,7 +86,8 @@ router.post('/addchapter', (req, res) => {
 
 router.put('/updatechapter', (req, res) => {
     courseService.updateChapter(req, res);
-});
+}); */
+
 //end chapter
 
 //content start
@@ -99,6 +106,11 @@ router.put('/updatecontent', (req, res) => {
 router.post('/getallmediacontent', (req, res) => {
   courseService.getallmediacontent(req, res);
 });
+
+router.post('/getallmediacontentadmin', (req, res) => {
+  courseService.getallmediacontentAdmin(req, res);
+});
+
 
 router.post('/upload', upload.array('files'), (req, res) => {
    /*  console.log(req);
@@ -125,7 +137,7 @@ router.get('/files/:filename', (req, res) => {
 });
 
 
-router.post('/enrollcourse', (req, res) => {
+/* router.post('/enrollcourse', (req, res) => {
   courseService.enrollCourse(req, res);
 });
 
@@ -133,5 +145,5 @@ router.post('/enrollcourse', (req, res) => {
 router.post('/fetchenrollcourses', (req, res) => {
   courseService.fetchEnrollCourses(req, res);
 });
-
+ */
 module.exports = router;

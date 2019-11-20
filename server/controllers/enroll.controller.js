@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const enrollService = require('../services/courseCreate');
+const enrollService = require('../services/enroll.service');
 
 
 router.post('/enrollcourse', (req, res) => {

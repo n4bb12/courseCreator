@@ -17,7 +17,7 @@ const Home = () => {
       alt="First slide"
     />
     <Carousel.Caption>
-      <h3>First slide label</h3>
+      <h3>Create Your Own Course</h3>
       <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
     </Carousel.Caption>
   </Carousel.Item>
@@ -29,7 +29,7 @@ const Home = () => {
     />
 
     <Carousel.Caption>
-      <h3>Second slide label</h3>
+      <h3>Expand Your Knowledge</h3>
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
     </Carousel.Caption>
   </Carousel.Item>
@@ -41,7 +41,7 @@ const Home = () => {
     />
 
     <Carousel.Caption>
-      <h3>Third slide label</h3>
+      <h3>Check out our awesome courses</h3>
       <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
     </Carousel.Caption>
   </Carousel.Item>
@@ -50,17 +50,17 @@ const Home = () => {
 <div className="container marketing">
 <div className="row">
   <div className="col-lg-4">
-    <h2>Heading</h2>
+    <h2>Learn</h2>
     <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
     <p><a className="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
   </div>
   <div className="col-lg-4">
-    <h2>Heading</h2>
+    <h2>Create</h2>
     <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh.</p>
     <p><a className="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
   </div>
   <div className="col-lg-4">
-    <h2>Heading</h2>
+    <h2>Share</h2>
     <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
     <p><a className="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
   </div>

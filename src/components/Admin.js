@@ -150,18 +150,29 @@ const Admin = () => {
         });
     };
 
-    const updateCourse = () => {
+
+    
+    const updateCourse = (status) => {
         axiosInstance.put('/course/update', {
-            "courseId": 11,
+            "courseId": selectedCourseObj.courseId,
             "courseName": courseFormArr[0].value,
             "courseSubtitle": courseFormArr[1].value,
             "courseDesc": courseFormArr[2].value,
             "coursePrice": courseFormArr[3].value,
-            "courseDuration": courseFormArr[4].value
+            "courseDuration": courseFormArr[4].value,
+            "status": status || selectedCourseObj.status
         }).then(response => {
             console.log('succesfully updated', response);
-            alert('changing the view, update succesful');
+            alert('changing the view, update succesfull');
             setViewFlag({ create: false, view: true });
+        });
+    };
+
+    const publishCourse = (val)  => {
+        console.log(val);
+        axiosInstance.patch('/course/updatestatus', { courseId: val.courseId, status: 'published' },
+        ).then(response => {
+            console.log(response);
         });
     };
 
@@ -235,6 +246,8 @@ const Admin = () => {
 
     const editCourse = (selectedCourse) => {
         console.log(selectedCourse);
+        setCourseObj(selectedCourse);
+
         const tempArr = [...courseFormArr];
         tempArr.forEach(val => {
             if (val.id in selectedCourse) {
@@ -432,9 +445,7 @@ const updateChapter = () => {
                     const file = fileArr[i];
                     formData.append('files', file);
                 }
-                for (const key of formData.entries()) {
-                    console.log(key);
-                }
+      
               Axios({
                     url: 'http://localhost:8000/course/upload',
                     method: 'POST',
@@ -679,6 +690,7 @@ const updateChapter = () => {
                             <div className="selectedChapterSection">
                             <p>Name : {selectedCourseObj.courseName}</p>
                             <p>Price : ${selectedCourseObj.coursePrice}</p>
+                            {selectedCourseObj.status !== 'published' && <Button variant="success" style={{margin:'5px'}} onClick={() => publishCourse(selectedCourseObj)}>Publish Course</Button>}
                             <Button variant="primary" onClick={() =>  {
                                 setChapterCreateUpdateFlag({create: true, update: false});
                                 setChapterModal(true);
@@ -754,7 +766,7 @@ const updateChapter = () => {
                             {/*    <ButtonComp text="Add Course" handleOnSubmit = {() => submitCourse()} />   */}
                             
                            {viewFlag.update === false  && <Button variant="primary" onClick={submitCourse} style={{ marginRight: '10px' }}>ADD COURSE</Button> }
-                           {viewFlag.update === true && <Button variant="info" onClick={updateCourse}>Update Course</Button> }
+                           {viewFlag.update === true && <Button variant="info" onClick={() => updateCourse('')}>Update Course</Button> }
                         </Form>
                     }
                 </div>

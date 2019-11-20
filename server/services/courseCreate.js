@@ -1,8 +1,8 @@
 const CourseModel = require('../models/courseSchema');
-const ChapterModel = require('../models/chapterSchema');
+// const ChapterModel = require('../models/chapterSchema');
 const ContentModel = require('../models/contentSchema');
 const FilesModel = require('../models/fs.files.model');
-const EnrollModel = require('../models/course-enroll.model');
+// const EnrollModel = require('../models/course-enroll.model');
 
 
 const courseObject = {};
@@ -43,7 +43,7 @@ courseObject.courseCreate = async (req, res) => {
 };
 
 
-courseObject.enrollCourse = async (req, res) => {
+/* courseObject.enrollCourse = async (req, res) => {
     console.log(req.body);
     try{
         const course = new EnrollModel({
@@ -87,7 +87,7 @@ courseObject.fetchEnrollCourses = async (req, res) => {
     catch(e){
         res.send(e);
     }
-};
+}; */
 
 courseObject.courseUpdate = async(req, res) => {
     try{
@@ -103,6 +103,24 @@ courseObject.courseUpdate = async(req, res) => {
         res.send(e);
     }
 };
+
+courseObject.courseStatusUpdate = async (req, res) => {
+    try{
+        const query = { courseId: req.body.courseId };
+        console.log(query);
+        console.log(req.body.status);
+        CourseModel.findOneAndUpdate(query, {
+            status: req.body.status
+        }, (err, data) => {
+            if(err) return res.send(500, {err});
+            return res.send({data,status:200});
+        });
+    }
+    catch(e){
+        res.send(e);
+    }
+};
+
 
 courseObject.updatecontent = async(req, res) =>{
     console.log(req.body);
@@ -159,7 +177,7 @@ courseObject.fetchCourses = async(req, res) => {
     }
 };
 
-
+/* 
 courseObject.fetchChapters = async(req, res) => {
     try{
        console.log(req.body);
@@ -222,7 +240,7 @@ courseObject.updateChapter = async(req, res) =>{
         res.send(e);
     }
 };
-
+ */
 
 courseObject.addContent = async(req, res)=> {
     try{
@@ -274,6 +292,25 @@ courseObject.getallmediacontent = async(req, res) => {
         }
       );
 };
+
+courseObject.getallmediacontentAdmin = async(req, res) => {
+
+    FilesModel.find(
+        { metadata: { parentRecordID: req.body.email } },
+        (err, doc) => {
+          if (!doc || doc.length === 0) {
+            return res.status(500).json({
+              err: 'No available files'
+            });
+          }
+          // File exists
+          return res.status(200).send(doc);
+        }
+      );
+};
+
+
+
 
 courseObject.getContent = async (req, res) => {
     try{

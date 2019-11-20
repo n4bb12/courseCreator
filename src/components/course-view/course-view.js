@@ -69,7 +69,7 @@ class CourseView extends React.Component {
 
 
     fetchChapters(param) {
-        axiosInstance.post('/course/fetchchapters', {
+        axiosInstance.post('/chapter/fetchchapters', {
             courseId: param
         }).then(response => {
             console.log('chapter for courses', response);
