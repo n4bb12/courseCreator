@@ -17,7 +17,7 @@ To run the application for development, use:
 npm run dev
 ```
 
-This will run 2 servers, react app and node api server. Webpack dev server for react will run at 3000 port, you can access it by: http://localhost:3000. Node API server will run at 8080 post, can be accessed by: http://localhost:8000.
+This will run 2 servers, react app and node api server. Webpack dev server for react will run at 3000 port, you can access it by: http://localhost:3000. Node API server will run at 8000 post, can be accessed by: http://localhost:8000.
 
 To run only node server, use
 
